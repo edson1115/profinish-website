@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
 import { PrintButton } from "./print-button";
 
-async function InvoiceContent({ id }: { id: string }) {
+async function InvoiceContent({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
 
   const { data: lead, error } = await supabase
@@ -95,9 +96,7 @@ async function InvoiceContent({ id }: { id: string }) {
   );
 }
 
-export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  
+export default function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <div className="min-h-screen bg-gray-50 py-10 print:py-0 print:bg-white text-black">
       {/* Print Button (Hidden when actually printing) */}
@@ -106,7 +105,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
       </div>
 
       <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading invoice data...</div>}>
-        <InvoiceContent id={id} />
+        <InvoiceContent params={params} />
       </Suspense>
     </div>
   );

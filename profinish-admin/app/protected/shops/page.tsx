@@ -4,6 +4,9 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { Suspense } from "react";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY || "re_dummy");
 
 async function updateShopStatus(formData: FormData) {
   "use server";
@@ -36,21 +39,17 @@ async function updateShopStatus(formData: FormData) {
       }
 
       // 2. Send the email using a provider like Resend
-      /* 
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: "Profinish Admin <noreply@yourdomain.com>", // You'll verify a domain with Resend
+      try {
+        await resend.emails.send({
+          from: "Profinish <onboarding@resend.dev>",
           to: [shop.contact_email],
           subject: "Your Shop Account is Approved!",
-          html: `<p>Hi ${shop.name},</p><p>Great news! Your account has been approved by the administrator.</p><p>You can now log in to the shop portal to view and estimate leads.</p><p><a href="http://localhost:3000/auth/login">Click here to log in</a></p>`,
-        }),
-      });
-      */
+          html: `<p>Hi <strong>${shop.name}</strong>,</p><p>Great news! Your account has been approved by the Profinish administrator.</p><p>You can now log in to the shop portal to view and estimate leads.</p><p><a href="https://profinish-admin.vercel.app/auth/login" style="display:inline-block;padding:12px 24px;background-color:#6e45ff;color:white;text-decoration:none;border-radius:8px;font-weight:bold;margin-top:16px;">Log In to Shop Portal</a></p>`,
+        });
+        console.log("✅ Approval email sent!");
+      } catch (error) {
+        console.error("❌ Failed to send email", error);
+      }
     }
   }
 

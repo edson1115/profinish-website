@@ -31,7 +31,9 @@ async function assignShopToLead(formData: FormData) {
   revalidatePath("/protected");
 }
 
-async function DashboardContent({ filter }: { filter: string }) {
+async function DashboardContent({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
+  const resolvedParams = await searchParams;
+  const filter = resolvedParams?.filter || 'all';
   const supabase = await createClient();
 
   const {
@@ -49,6 +51,11 @@ async function DashboardContent({ filter }: { filter: string }) {
     .eq("id", user.id)
     .single();
 
+  // Redirect shop users to their dedicated portal
+  if (profile?.role === 'shop') {
+    redirect("/shops/dashboard");
+  }
+
   // Build the leads query
   let query = supabase.from("leads").select("*").order("created_at", { ascending: false });
 
@@ -57,11 +64,6 @@ async function DashboardContent({ filter }: { filter: string }) {
     query = query.eq("is_paid", true);
   } else if (filter === 'unpaid') {
     query = query.not("is_paid", "eq", true);
-  }
-
-  // If the user is a shop partner, ONLY show them leads assigned to their shop
-  if (profile?.role === 'shop' && profile?.shop_id) {
-    query = query.eq("shop_id", profile.shop_id);
   }
 
   const { data: leads, error } = await query;
@@ -220,10 +222,7 @@ async function DashboardContent({ filter }: { filter: string }) {
   );
 }
 
-export default async function ProtectedPage(props: { searchParams: Promise<{ filter?: string }> }) {
-  const searchParams = await props.searchParams;
-  const filter = searchParams?.filter || 'all';
-
+export default function ProtectedPage(props: { searchParams: Promise<{ filter?: string }> }) {
   return (
     <Suspense fallback={
       <div className="flex-1 w-full flex items-center justify-center min-h-[50vh] text-white">
@@ -236,7 +235,7 @@ export default async function ProtectedPage(props: { searchParams: Promise<{ fil
         </div>
       </div>
     }>
-      <DashboardContent filter={filter} />
+      <DashboardContent searchParams={props.searchParams} />
     </Suspense>
   );
 }

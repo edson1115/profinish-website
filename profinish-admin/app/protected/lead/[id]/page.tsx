@@ -6,6 +6,10 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { Suspense } from "react";
 import CheckoutButton from "@/components/checkout-button";
+import { SubmitActionButton } from "@/components/submit-action-button";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY || "re_dummy");
 
 // --- Server Actions ---
 async function updateStatus(formData: FormData) {
@@ -78,6 +82,29 @@ async function togglePaidStatus(formData: FormData) {
   
   const supabase = await createClient();
   await supabase.from("leads").update({ is_paid: !currentPaidStatus }).eq("id", leadId);
+  revalidatePath(`/protected/lead/${leadId}`);
+}
+
+async function emailCustomerInvoice(formData: FormData) {
+  "use server";
+  const leadId = formData.get("leadId") as string;
+  const customerEmail = formData.get("customerEmail") as string;
+  const customerName = formData.get("customerName") as string;
+  
+  try {
+    const invoiceUrl = `https://profinish-admin.vercel.app/invoice/${leadId}`;
+    
+    await resend.emails.send({
+      from: "Profinish <onboarding@resend.dev>",
+      to: [customerEmail],
+      subject: "Your Profinish Service Invoice",
+      html: `<p>Hi <strong>${customerName}</strong>,</p><p>Thank you for choosing Profinish! Your service is complete and your invoice is ready.</p><p><a href="${invoiceUrl}" style="display:inline-block;padding:12px 24px;background-color:#3dfd98;color:#020204;text-decoration:none;border-radius:8px;font-weight:bold;margin-top:16px;">View & Print Invoice</a></p>`,
+    });
+    console.log("✅ Invoice emailed to customer!");
+  } catch (error) {
+    console.error("❌ Failed to send invoice email", error);
+  }
+  
   revalidatePath(`/protected/lead/${leadId}`);
 }
 
@@ -460,6 +487,17 @@ async function LeadDetailsContent({ params }: { params: Promise<{ id: string }> 
                 <button type="submit" className={`w-full mb-2 text-center px-8 py-3 border rounded-xl text-sm font-bold transition-all active:scale-95 ${lead.is_paid ? 'bg-[#3dfd98]/20 text-[#3dfd98] border-[#3dfd98]/30 hover:bg-[#3dfd98]/30' : 'border-white/20 hover:bg-white/10 text-white'}`}>
                   {lead.is_paid ? '✅ Invoice Marked as PAID (Click to Undo)' : 'Mark Invoice as PAID'}
                 </button>
+              </form>
+
+              <form action={emailCustomerInvoice} className="w-full">
+                <input type="hidden" name="leadId" value={lead.id} />
+                <input type="hidden" name="customerEmail" value={lead.customer_email} />
+                <input type="hidden" name="customerName" value={lead.customer_name} />
+                <SubmitActionButton 
+                  idleText="✉️ Email Invoice to Customer"
+                  loadingText="✉️ Sending Email..."
+                  className="w-full mb-2 text-center px-8 py-3 bg-[#6e45ff]/20 text-[#a990ff] hover:bg-[#6e45ff]/30 border border-[#6e45ff]/30 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
               </form>
 
               <a 

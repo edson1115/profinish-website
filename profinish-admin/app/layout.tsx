@@ -39,7 +39,7 @@ export default function RootLayout({
             </div>
             <div className="flex items-center gap-8 text-gray-400">
               <p>
-                &copy; {new Date().getFullYear()} Profinish. All rights reserved.
+                &copy; 2026 Profinish. All rights reserved.
               </p>
               <ThemeSwitcher />
             </div>
