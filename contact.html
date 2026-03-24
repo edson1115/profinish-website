@@ -1,212 +1,313 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - ProFinish Glass & Body</title>
+    <title>Contact ProFinish | Elite Auto Body & Glass</title>
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="brand_assets/ProFinishLogo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            black: '#020204',
-                            white: '#ffffff',
-                            purple: '#6e45ff',
-                            green: '#3dfd98',
-                            'green-300': '#8dfdc3',
-                            'purple-300': '#a990ff',
-                            'neutral-dark': '#302d3a',
-                        },
+                        navy: { 900: '#050A14', 800: '#0A1220', 700: '#111D33', 600: '#1C2E4A' },
+                        orange: { 500: '#F26522', 600: '#D95214' },
+                        slate: { 300: '#A1B0C8', 400: '#7588A6' }
                     },
                     fontFamily: {
                         sans: ['Outfit', 'sans-serif'],
-                    },
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
                 }
             }
         }
     </script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Custom CSS for Texture and Animations -->
     <style>
-        body { background-color: #020204; color: white; }
-        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-        .delay-100 { transition-delay: 100ms; }
-        .delay-200 { transition-delay: 200ms; }
-        .delay-300 { transition-delay: 300ms; }
-
+        body { background-color: #050A14; color: #ffffff; }
+        
+        /* Premium Grain Overlay */
+        .bg-grain::before {
+            content: ""; position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 50; mix-blend-mode: overlay;
+        }
+        
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #020204; }
-        ::-webkit-scrollbar-thumb { background: #302d3a; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6e45ff; }
-
-        /* Footer Glow Link */
-        .glow-link { transition: all 0.3s ease; }
-        .glow-link:hover {
-            color: #6e45ff;
-            text-shadow: 0 0 12px rgba(110, 69, 255, 0.8);
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #050A14; }
+        ::-webkit-scrollbar-thumb { background: #111D33; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #F26522; }
+        
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: rgba(10, 18, 32, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
-<body class="font-sans antialiased selection:bg-brand-purple selection:text-white">
-    
+<body class="bg-grain relative antialiased selection:bg-orange-500 selection:text-white min-h-screen flex flex-col">
+
     <!-- Navigation -->
-    <header class="fixed w-full top-0 z-50 bg-brand-black/60 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-3 group">
-                <div class="bg-white/10 p-2 rounded-lg group-hover:bg-white/20 transition-colors">
-                    <img src="brand_assets/ProFinishLogo.png" alt="ProFinish" class="h-8 w-auto">
-                </div>
-                <span class="font-bold text-xl tracking-wide text-white">ProFinish</span>
+    <nav class="fixed w-full z-40 top-0 pt-6 px-6">
+        <div class="max-w-7xl mx-auto glass-panel rounded-full px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <img src="./brand_assets/ProFinishLogo.png" alt="ProFinish Logo" class="h-10 w-auto rounded-md">
+                <span class="font-bold text-xl tracking-tight hidden sm:block">ProFinish<span class="text-orange-500">.</span></span>
             </a>
-            
-            <nav class="hidden md:flex items-center gap-6">
-                <div class="relative group">
-                    <button class="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white transition-colors tracking-wide focus:outline-none">
-                        Services
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-70 group-hover:rotate-180 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
-                    <div class="absolute top-full left-0 mt-4 w-56 bg-brand-black/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 overflow-hidden z-50">
-                        <a href="services.html" class="block px-6 py-4 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5">All Services</a>
-                        <a href="services.html#auto-glass" class="block px-6 py-4 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5">Auto Glass</a>
-                        <a href="services.html#pdr" class="block px-6 py-4 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5">Dent Removal</a>
-                        <a href="services.html#wheel-repair" class="block px-6 py-4 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Wheel Repair</a>
-                    </div>
-                </div>
-                <a href="gallery.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors tracking-wide">Work</a>
-                <a href="about.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors tracking-wide">About</a>
-                <a href="https://calendly.com/" target="_blank" class="bg-brand-purple text-white px-6 py-2.5 rounded-full font-bold text-sm transition-all hover:bg-brand-purple-300 hover:shadow-[0_0_20px_rgba(110,69,255,0.4)]">Book Now</a>
-                <a href="contact.html" class="bg-white text-brand-black px-6 py-2.5 rounded-full font-bold text-sm transition-all hover:bg-brand-green hover:shadow-[0_0_20px_rgba(61,253,152,0.4)]">Get Started</a>
-            </nav>
-
-            <button id="nav-toggle" class="md:hidden text-white focus:outline-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </button>
+            <div class="hidden md:flex gap-8 text-sm font-medium text-slate-300">
+                <a href="index.html#services" class="hover:text-white transition-colors">Services</a>
+                <a href="contact.html" class="text-white transition-colors">Start Quote</a>
+            </div>
+            <a href="index.html" class="text-slate-400 hover:text-white text-sm font-bold transition-all flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Back Home
+            </a>
         </div>
-    </header>
+    </nav>
 
-    <!-- Mobile Menu -->
-    <div id="nav-menu" class="fixed inset-0 bg-brand-black/95 backdrop-blur-xl z-[60] flex flex-col items-center justify-center gap-8 transition-all duration-300 opacity-0 pointer-events-none">
-        <button id="nav-close" class="absolute top-6 right-6 text-white focus:outline-none">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
-        <a href="services.html" class="text-2xl font-bold text-white hover:text-brand-green transition-colors">Services</a>
-        <a href="gallery.html" class="text-2xl font-bold text-white hover:text-brand-green transition-colors">Work</a>
-        <a href="about.html" class="text-2xl font-bold text-white hover:text-brand-green transition-colors">About</a>
-        <a href="contact.html" class="text-2xl font-bold text-white hover:text-brand-green transition-colors">Contact</a>
-        <a href="faq.html" class="text-2xl font-bold text-white hover:text-brand-green transition-colors">FAQ</a>
-        <a href="https://calendly.com/" target="_blank" class="bg-brand-purple text-white px-8 py-3 rounded-full font-bold text-lg transition-all hover:bg-brand-purple-300 shadow-[0_0_20px_rgba(110,69,255,0.4)]">Book Now</a>
-    </div>
-
-    <main class="pt-32 pb-20">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-20">
-                <h1 class="reveal text-5xl md:text-6xl font-bold mb-6 tracking-tighter">Contact Us</h1>
-                <p class="reveal delay-100 text-xl text-gray-400">We're here to help with all your auto glass and body needs.</p>
+    <!-- Split Screen Contact & Video Layout -->
+    <main class="flex-grow pt-32 pb-20 px-6 max-w-[90rem] mx-auto w-full grid lg:grid-cols-2 gap-8 lg:gap-16 items-start relative z-10">
+        
+        <!-- Left Side: The Form -->
+        <div class="w-full max-w-2xl mx-auto lg:mx-0 order-2 lg:order-1">
+            <div class="mb-10">
+                <h1 class="text-4xl md:text-5xl font-black mb-4">Request an <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-300">Estimate</span></h1>
+                <p class="text-slate-400 text-lg">Send us the details and damage photos of your vehicle. Our experts (and AI) will review it immediately.</p>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-16 items-start">
-                <!-- Contact Form -->
-                <div class="reveal delay-200">
-                    <div class="bg-white/5 p-10 rounded-3xl border border-white/10 backdrop-blur-sm">
-                        <h2 class="text-2xl font-bold mb-6">Send us a Message</h2>
-                        <form class="flex flex-col gap-6" action="send_email.php" method="POST">
+            <div class="glass-panel rounded-[2rem] p-6 md:p-10 relative overflow-hidden border border-navy-600">
+                <form id="quote-form" class="relative z-10 space-y-8">
+                    <!-- Customer Info -->
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-3">
+                            <span class="w-6 h-px bg-slate-600"></span> Contact Details
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
-                                <input type="text" id="name" name="name" required class="w-full px-4 py-3 rounded-xl bg-brand-black/50 border border-white/10 text-white focus:border-brand-purple focus:ring-1 focus:ring-brand-purple outline-none transition-all">
-                            </div>
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                                <input type="email" id="email" name="email" required class="w-full px-4 py-3 rounded-xl bg-brand-black/50 border border-white/10 text-white focus:border-brand-purple focus:ring-1 focus:ring-brand-purple outline-none transition-all">
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Full Name</label>
+                                <input type="text" name="name" required class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="John Doe">
                             </div>
                             <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-300 mb-1">Phone</label>
-                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 rounded-xl bg-brand-black/50 border border-white/10 text-white focus:border-brand-purple focus:ring-1 focus:ring-brand-purple outline-none transition-all">
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Phone Number</label>
+                                <input type="tel" name="phone" required pattern="[0-9]{10}" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="1234567890">
                             </div>
-                            <div>
-                                <label for="message" class="block text-sm font-medium text-gray-300 mb-1">Message</label>
-                                <textarea id="message" name="message" rows="4" class="w-full px-4 py-3 rounded-xl bg-brand-black/50 border border-white/10 text-white focus:border-brand-purple focus:ring-1 focus:ring-brand-purple outline-none transition-all"></textarea>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Email Address</label>
+                                <input type="email" name="email" required class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="john@example.com">
                             </div>
-                            <div class="relative group mt-2">
-                                <div class="absolute -inset-1 bg-gradient-to-r from-brand-purple to-brand-green rounded-xl blur opacity-40 group-hover:opacity-100 transition duration-500"></div>
-                                <button type="submit" class="relative w-full bg-brand-purple text-white font-bold py-4 rounded-xl hover:bg-brand-purple-300 transition-all active:scale-[0.98]">Send Message</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Map & Info -->
-                <div class="reveal delay-300 space-y-8">
-                    <div class="rounded-3xl overflow-hidden border border-white/10 h-[400px] grayscale hover:grayscale-0 transition-all duration-700 shadow-2xl">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.1422937950147!2d-73.98731968482413!3d40.75889497932681!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25855c6480299%3A0x55194ec5a1ae072e!2sTimes+Square!5e0!3m2!1sen!2sus!4v1510579767645" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
-                    
-                    <div class="bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-sm">
-                        <h3 class="text-xl font-bold mb-4 text-brand-green">Contact Information</h3>
-                        <div class="space-y-4 text-gray-300">
-                            <p><strong class="text-white">Address:</strong><br>123 Auto Repair Lane<br>Metro City, ST 12345</p>
-                            <p><strong class="text-white">Phone:</strong><br><a href="tel:+15551234567" class="hover:text-brand-purple transition-colors">(555) 123-4567</a></p>
-                            <p><strong class="text-white">Email:</strong><br><a href="mailto:info@profinishglassandbody.com" class="hover:text-brand-purple transition-colors">info@profinishglassandbody.com</a></p>
-                            <p><strong class="text-white">Hours:</strong><br>Mon-Fri: 8am - 6pm<br>Sat: 9am - 2pm</p>
                         </div>
                     </div>
+
+                    <!-- Vehicle Info -->
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-3">
+                            <span class="w-6 h-px bg-slate-600"></span> Vehicle Specs
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">VIN <span class="text-slate-600 font-normal">(Optional)</span></label>
+                                <input type="text" name="vin" maxlength="17" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all uppercase font-mono placeholder-slate-600 shadow-inner" placeholder="17-DIGIT VIN">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">License Plate <span class="text-slate-600 font-normal">(Optional)</span></label>
+                                <input type="text" name="license_plate" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all uppercase placeholder-slate-600 shadow-inner" placeholder="ABC-1234">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Year / Make / Model</label>
+                                <input type="text" name="vehicle_info" required class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="2022 Ford F-150">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Service Details -->
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-3">
+                            <span class="w-6 h-px bg-slate-600"></span> Damage Report
+                        </h3>
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Service Needed</label>
+                                <select name="service" required class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all appearance-none cursor-pointer shadow-inner">
+                                    <option value="glass">Auto Glass Replacement</option>
+                                    <option value="pdr">Paintless Dent Repair (PDR)</option>
+                                    <option value="wheel">Wheel & Rim Repair</option>
+                                    <option value="other">Other / Not Sure</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-2 ml-1">Upload Damage Photos</label>
+                                <label for="images" class="border-2 border-dashed border-navy-600 bg-navy-900/40 hover:bg-navy-800 rounded-2xl p-6 text-center cursor-pointer hover:border-orange-500 transition-all block group">
+                                    <div class="bg-navy-800 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform shadow-lg">
+                                        <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                    </div>
+                                    <span class="text-white font-bold text-sm block">Click to upload photos</span>
+                                    <span class="block text-slate-500 text-xs mt-1">Up to 3 images (JPG, PNG) for AI analysis</span>
+                                    <input type="file" id="images" name="images" multiple accept="image/*" class="hidden">
+                                </label>
+                                <div id="file-names" class="text-sm text-orange-400 mt-2 font-medium px-2"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Additional Notes</label>
+                                <textarea name="message" rows="3" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="Briefly describe the damage..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" id="submit-btn" class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(242,101,34,0.3)] hover:shadow-[0_0_30px_rgba(242,101,34,0.5)] transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                            <span>Submit for Estimate</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                        <p id="form-message" class="text-center mt-4 text-sm font-bold"></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side: Cinematic Video Showcase -->
+        <div class="block order-1 lg:order-2 relative h-[300px] lg:sticky lg:top-32 lg:h-[calc(100vh-10rem)] w-full rounded-[2.5rem] overflow-hidden border border-navy-600 glass-panel group mb-8 lg:mb-0">
+            <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-700">
+                <source src="brand_assets/Flow_delpmaspu_.mp4" type="video/mp4">
+            </video>
+            
+            <!-- Gradient Overlays for Readability -->
+            <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/20 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-navy-900/60 to-transparent"></div>
+            
+            <!-- Content overlaid on Video -->
+            <div class="absolute bottom-0 left-0 w-full p-12">
+                <div class="bg-orange-500/20 border border-orange-500/30 text-orange-400 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase inline-block mb-6 backdrop-blur-md">
+                    Elite Craftsmanship
                 </div>
+                <h2 class="text-4xl font-black text-white mb-4 leading-tight">
+                    Precision meets <br>performance.
+                </h2>
+                <p class="text-slate-300 text-lg max-w-md leading-relaxed">
+                    Every vehicle that enters our shop is treated with absolute care. Let us restore your factory finish so you can drive with confidence.
+                </p>
             </div>
         </div>
     </main>
 
-    <footer class="bg-brand-black border-t border-white/10 py-12">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-gray-500 text-sm">
-            <p>&copy; 2024 ProFinish. All rights reserved.</p>
-            <div class="flex flex-wrap justify-center gap-6">
-                <a href="testimonials.html" class="glow-link">Testimonials</a>
-                <a href="faq.html" class="glow-link">FAQ</a>
-                <a href="privacy.html" class="glow-link">Privacy Policy</a>
-                <a href="terms.html" class="glow-link">Terms of Service</a>
-            </div>
-            <div class="flex items-center gap-4 text-gray-400">
-                <a href="#" class="glow-link" aria-label="Facebook">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
-                </a>
-                <a href="#" class="glow-link" aria-label="Instagram">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" /></svg>
-                </a>
-                <a href="#" class="glow-link" aria-label="Twitter">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" /></svg>
-                </a>
-            </div>
-        </div>
-    </footer>
-
+    <!-- Form Logic (Identical to index.html) -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        // Connect to your existing Supabase
+        const supabaseUrl = 'https://qzlxhrbuaouaslxsvycd.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6bHhocmJ1YW91YXNseHN2eWNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTM1ODYsImV4cCI6MjA4OTI2OTU4Nn0.ITe6JRomof5tda44t0fmonUBCJoh3W-F0cY57R2RaWM';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Dynamic File Upload UI
+        document.getElementById('images').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length > 3) {
+                alert("Please select a maximum of 3 photos.");
+                this.value = "";
+                document.getElementById('file-names').textContent = "";
+                return;
+            }
+            const names = files.map(f => f.name).join(', ');
+            document.getElementById('file-names').textContent = names ? `Selected: ${names}` : '';
         });
 
-        const navToggle = document.getElementById('nav-toggle');
-        const navClose = document.getElementById('nav-close');
-        const navMenu = document.getElementById('nav-menu');
+        // Form Submission Logic
+        const form = document.getElementById('quote-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = submitBtn.querySelector('span');
+        const formMessage = document.getElementById('form-message');
 
-        function toggleMenu() {
-            navMenu.classList.toggle('opacity-0');
-            navMenu.classList.toggle('pointer-events-none');
-        }
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const originalText = btnText.textContent;
+            submitBtn.disabled = true;
+            btnText.textContent = 'Processing...';
+            formMessage.textContent = '';
+            
+            const formData = new FormData(form);
+            
+            try {
+                let imageUrls = [];
+                const imageFiles = document.getElementById('images').files;
+                
+                // 1. Upload Images
+                if (imageFiles.length > 0) {
+                    btnText.textContent = 'Uploading photos...';
+                    for (const file of imageFiles) {
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+                        
+                        const { error: uploadError } = await supabaseClient.storage
+                            .from('damage-images')
+                            .upload(`public/${fileName}`, file);
+                            
+                        if (uploadError) throw uploadError;
+                        
+                        const { data: { publicUrl } } = supabaseClient.storage
+                            .from('damage-images')
+                            .getPublicUrl(`public/${fileName}`);
+                            
+                        imageUrls.push(publicUrl);
+                    }
+                }
+                
+                btnText.textContent = 'Encrypting & Sending...';
 
-        if(navToggle) navToggle.addEventListener('click', toggleMenu);
-        if(navClose) navClose.addEventListener('click', toggleMenu);
+                const leadData = {
+                    customer_name: formData.get('name'),
+                    customer_email: formData.get('email'),
+                    customer_phone: formData.get('phone'),
+                    service_needed: formData.get('service'),
+                    vin: formData.get('vin'),
+                    license_plate: formData.get('license_plate'),
+                    vehicle_info: formData.get('vehicle_info'),
+                    message: formData.get('message'),
+                    image_urls: imageUrls,
+                    status: 'NEW'
+                };
+
+                // 2. Insert into Supabase Database
+                const { error } = await supabaseClient.from('leads').insert([leadData]);
+                if (error) throw error;
+
+                // 3. Trigger Zapier Alert Webhook
+                fetch('https://hooks.zapier.com/hooks/catch/26865650/uph4mob/', {
+                    method: 'POST',
+                    body: JSON.stringify(leadData)
+                }).catch(console.error);
+
+                // Success UI
+                form.reset();
+                document.getElementById('file-names').textContent = '';
+                formMessage.className = 'text-center mt-4 text-sm font-bold text-green-400';
+                formMessage.textContent = "Quote Request Sent Successfully! We will be in touch.";
+                btnText.textContent = 'Submitted!';
+                
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    btnText.textContent = originalText;
+                }, 3000);
+
+            } catch (error) {
+                console.error("Form Error:", error);
+                formMessage.className = 'text-center mt-4 text-sm font-bold text-red-400';
+                formMessage.textContent = "Something went wrong. Please check your connection and try again.";
+                submitBtn.disabled = false;
+                btnText.textContent = originalText;
+            }
+        });
     </script>
 </body>
 </html>
