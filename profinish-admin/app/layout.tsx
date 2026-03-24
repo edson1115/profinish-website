@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -9,15 +9,9 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Profinish - Premium Auto Network",
+  description: "B2B dispatch and coordination network",
 };
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  display: "swap",
-  subsets: ["latin"],
-});
 
 export default function RootLayout({
   children,
@@ -26,14 +20,30 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+      <body className="antialiased bg-navy-900 text-white flex flex-col min-h-screen">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <main className="flex-1 flex flex-col">
+            {children}
+          </main>
+
+          {/* Global Footer with Disclaimer (Hidden when printing invoices) */}
+          <footer className="w-full flex flex-col items-center justify-center border-t border-white/10 mt-auto text-center text-xs gap-6 py-12 text-gray-500 print:hidden">
+            <div className="max-w-3xl px-6 text-justify">
+              <p className="font-bold text-gray-400 mb-2 uppercase tracking-wider text-center">Service Fulfillment Disclaimer</p>
+              <p>Profinish operates as a premium B2B dispatch and coordination network. All physical repair, calibration, and detailing services are fulfilled by our exclusive network of certified, independent partner facilities.</p>
+            </div>
+            <div className="flex items-center gap-8 text-gray-400">
+              <p>
+                &copy; {new Date().getFullYear()} Profinish. All rights reserved.
+              </p>
+              <ThemeSwitcher />
+            </div>
+          </footer>
         </ThemeProvider>
       </body>
     </html>

@@ -23,6 +23,8 @@ export function SignUpForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [shopName, setShopName] = useState("");
+  const [serviceType, setServiceType] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -45,6 +47,11 @@ export function SignUpForm({
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/protected`,
+          data: {
+            role: "SHOP", // Automatically assign new signups as a Shop
+            shop_name: shopName,
+            service_type: serviceType,
+          },
         },
       });
       if (error) throw error;
@@ -66,6 +73,35 @@ export function SignUpForm({
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="shopName">Shop Name</Label>
+                <Input
+                  id="shopName"
+                  type="text"
+                  placeholder="e.g. Apex Auto Body"
+                  required
+                  value={shopName}
+                  onChange={(e) => setShopName(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="serviceType">Primary Service</Label>
+                <select
+                  id="serviceType"
+                  required
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="" disabled className="text-black">Select service type...</option>
+                  <option value="Auto Body" className="text-black">Auto Body</option>
+                  <option value="PDR" className="text-black">Paintless Dent Repair (PDR)</option>
+                  <option value="Detailing" className="text-black">Detailing</option>
+                  <option value="Mechanic" className="text-black">Mechanic / General Repair</option>
+                  <option value="Wheel Repair" className="text-black">Wheel Repair</option>
+                  <option value="Other" className="text-black">Other</option>
+                </select>
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

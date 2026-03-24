@@ -11,6 +11,9 @@ export default {
   theme: {
     extend: {
       colors: {
+        navy: { 900: '#050A14', 800: '#0A1220', 700: '#111D33', 600: '#1C2E4A' },
+        orange: { 500: '#F26522', 600: '#D95214' },
+        slate: { 300: '#A1B0C8', 400: '#7588A6' },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
