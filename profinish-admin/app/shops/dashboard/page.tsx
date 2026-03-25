@@ -2,7 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/logout-button";
 import { revalidatePath } from "next/cache";
+import Link from "next/link";
 import { Suspense } from "react";
+import { ToastForm } from "@/components/toast-form";
+import { SubmitActionButton } from "@/components/submit-action-button";
 
 async function submitEstimate(formData: FormData) {
   "use server";
@@ -11,12 +14,15 @@ async function submitEstimate(formData: FormData) {
   const supabase = await createClient();
 
   // Update the lead with the shop's estimate and change status to QUOTED
-  await supabase.from("leads").update({
+  const { error } = await supabase.from("leads").update({
     shop_cost: parseFloat(shopCost),
     status: "QUOTED",
   }).eq("id", leadId);
+  
+  if (error) return { error: error.message };
 
   revalidatePath("/shops/dashboard");
+  return { success: true };
 }
 
 async function submitEstimateLink(formData: FormData) {
@@ -24,8 +30,21 @@ async function submitEstimateLink(formData: FormData) {
   const leadId = formData.get("leadId") as string;
   const estimateUrl = formData.get("estimate_url") as string;
   const supabase = await createClient();
-  await supabase.from("leads").update({ estimate_url: estimateUrl }).eq("id", leadId);
+  const { error } = await supabase.from("leads").update({ estimate_url: estimateUrl }).eq("id", leadId);
+  if (error) return { error: error.message };
   revalidatePath("/shops/dashboard");
+  return { success: true };
+}
+
+async function submitShopPaymentLink(formData: FormData) {
+  "use server";
+  const leadId = formData.get("leadId") as string;
+  const paymentUrl = formData.get("shop_payment_url") as string;
+  const supabase = await createClient();
+  const { error } = await supabase.from("leads").update({ shop_payment_url: paymentUrl }).eq("id", leadId);
+  if (error) return { error: error.message };
+  revalidatePath("/shops/dashboard");
+  return { success: true };
 }
 
 async function submitFinalPhotosLink(formData: FormData) {
@@ -33,11 +52,15 @@ async function submitFinalPhotosLink(formData: FormData) {
   const leadId = formData.get("leadId") as string;
   const finalPhotosUrl = formData.get("final_photos_url") as string;
   const supabase = await createClient();
-  await supabase.from("leads").update({ final_photos_url: finalPhotosUrl }).eq("id", leadId);
+  const { error } = await supabase.from("leads").update({ final_photos_url: finalPhotosUrl }).eq("id", leadId);
+  if (error) return { error: error.message };
   revalidatePath("/shops/dashboard");
+  return { success: true };
 }
 
-async function ShopDashboardContent() {
+async function ShopDashboardContent({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
+  const resolvedParams = await searchParams;
+  const filter = resolvedParams?.filter || 'pending';
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -73,11 +96,17 @@ async function ShopDashboardContent() {
   // 2. Fetch leads assigned to this specific shop that need a quote
   let leads: any[] = [];
   if (shop) {
-    const { data } = await supabase
-      .from("leads")
-      .select("*")
-      .eq("shop_id", shop.id)
-      .order("created_at", { ascending: false });
+    let query = supabase.from("leads").select("*").eq("shop_id", shop.id).order("created_at", { ascending: false });
+
+    if (filter === 'pending') {
+      query = query.eq("status", "PENDING_QUOTES");
+    } else if (filter === 'active') {
+      query = query.in("status", ["QUOTED", "APPROVED", "DISPATCHED"]);
+    } else if (filter === 'completed') {
+      query = query.eq("status", "COMPLETED");
+    }
+    
+    const { data } = await query;
     
     leads = data || [];
   }
@@ -93,6 +122,14 @@ async function ShopDashboardContent() {
         <LogoutButton />
       </div>
       
+      {/* Status Filters */}
+      <div className="flex overflow-x-auto bg-black/40 border border-white/10 rounded-xl p-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <Link href="/shops/dashboard?filter=pending" className={`px-4 py-2 whitespace-nowrap rounded-lg text-sm font-bold transition-all ${filter === 'pending' ? 'bg-white/10 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}>Needs Quote</Link>
+        <Link href="/shops/dashboard?filter=active" className={`px-4 py-2 whitespace-nowrap rounded-lg text-sm font-bold transition-all ${filter === 'active' ? 'bg-white/10 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}>Active Jobs</Link>
+        <Link href="/shops/dashboard?filter=completed" className={`px-4 py-2 whitespace-nowrap rounded-lg text-sm font-bold transition-all ${filter === 'completed' ? 'bg-[#3dfd98]/20 text-[#3dfd98] shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}>Completed</Link>
+        <Link href="/shops/dashboard?filter=all" className={`px-4 py-2 whitespace-nowrap rounded-lg text-sm font-bold transition-all ${filter === 'all' ? 'bg-white/10 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}>All Leads</Link>
+      </div>
+
       <div className="grid gap-6">
         {leads.length === 0 ? (
           <div className="p-8 border border-white/10 rounded-xl bg-black/20 text-center">
@@ -119,12 +156,12 @@ async function ShopDashboardContent() {
               </div>
               
               {lead.status === "PENDING_QUOTES" ? (
-                <form action={submitEstimate} className="flex flex-col gap-3 min-w-[250px]">
+                <ToastForm action={submitEstimate} successMessage="Quote submitted successfully!" className="flex flex-col gap-3 min-w-[250px]">
                   <input type="hidden" name="leadId" value={lead.id} />
                   <label className="text-sm text-gray-400">Your Estimate ($)</label>
                   <input type="number" step="0.01" name="shop_cost" required className="bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#6e45ff]" placeholder="0.00" />
-                  <button type="submit" className="w-full px-4 py-2 bg-[#6e45ff] text-white rounded-xl font-bold hover:bg-[#a990ff] transition-all">Submit Quote</button>
-                </form>
+                  <SubmitActionButton idleText="Submit Quote" loadingText="Submitting..." className="w-full px-4 py-2 bg-[#6e45ff] text-white rounded-xl font-bold hover:bg-[#a990ff] transition-all disabled:opacity-50" />
+                </ToastForm>
               ) : (
                 <div className="flex flex-col items-end gap-3 min-w-[300px] justify-center w-full md:w-auto">
                   <span className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest ${
@@ -145,12 +182,12 @@ async function ShopDashboardContent() {
                   {lead.status === 'APPROVED' && (
                     <div className="w-full mt-4 p-5 bg-black/30 border border-white/10 rounded-xl text-left">
                       {!lead.estimate_url ? (
-                        <form action={submitEstimateLink} className="flex flex-col gap-2">
+                        <ToastForm action={submitEstimateLink} successMessage="Estimate link shared!" className="flex flex-col gap-2">
                           <input type="hidden" name="leadId" value={lead.id} />
                           <label className="text-xs text-gray-400 font-bold uppercase">Share Official Estimate Link</label>
                           <input type="url" name="estimate_url" required placeholder="https://your-pos.com/..." className="bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#6e45ff] text-sm" />
-                          <button type="submit" className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-all mt-1">Send to Profinish</button>
-                        </form>
+                          <SubmitActionButton idleText="Send to Profinish" loadingText="Sending..." className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-all mt-1 disabled:opacity-50" />
+                        </ToastForm>
                       ) : (
                         <div>
                           <p className="text-xs text-gray-500 font-bold uppercase mb-1">Official Estimate Shared</p>
@@ -169,15 +206,29 @@ async function ShopDashboardContent() {
 
                       {/* Final Photos Upload */}
                       {!lead.final_photos_url ? (
-                        <form action={submitFinalPhotosLink} className="flex flex-col gap-2 mt-4 pt-4 border-t border-white/10">
+                        <ToastForm action={submitFinalPhotosLink} successMessage="Final photos submitted!" className="flex flex-col gap-2 mt-4 pt-4 border-t border-white/10">
                           <label className="text-xs text-gray-400 font-bold uppercase">Share Final Repair Photos (Link)</label>
                           <input type="url" name="final_photos_url" required placeholder="https://drive.google.com/..." className="bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#6e45ff] text-sm" />
-                          <button type="submit" className="px-4 py-2 bg-[#6e45ff] hover:bg-[#a990ff] text-white text-xs font-bold rounded-lg transition-all mt-1 shadow-[0_0_10px_rgba(110,69,255,0.2)]">Submit Final Photos</button>
-                        </form>
+                          <SubmitActionButton idleText="Submit Final Photos" loadingText="Submitting..." className="px-4 py-2 bg-[#6e45ff] hover:bg-[#a990ff] text-white text-xs font-bold rounded-lg transition-all mt-1 shadow-[0_0_10px_rgba(110,69,255,0.2)] disabled:opacity-50" />
+                        </ToastForm>
                       ) : (
                         <div className="mt-4 pt-4 border-t border-white/10">
                           <p className="text-xs text-[#3dfd98] font-bold uppercase mb-1">Final Photos Submitted</p>
                           <a href={lead.final_photos_url} target="_blank" className="text-white hover:text-[#a990ff] text-sm font-medium break-all underline">{lead.final_photos_url}</a>
+                        </div>
+                      )}
+
+                      {/* Shop Payment Link Upload */}
+                      {!lead.shop_payment_url ? (
+                        <ToastForm action={submitShopPaymentLink} successMessage="Payment link shared!" className="flex flex-col gap-2 mt-4 pt-4 border-t border-white/10">
+                          <label className="text-xs text-gray-400 font-bold uppercase">Share Customer Payment Link</label>
+                          <input type="url" name="shop_payment_url" required placeholder="https://checkout.square.site/..." className="bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#3dfd98] text-sm" />
+                          <SubmitActionButton idleText="Submit Payment Link" loadingText="Submitting..." className="px-4 py-2 bg-[#3dfd98]/20 hover:bg-[#3dfd98]/30 text-[#3dfd98] text-xs font-bold rounded-lg transition-all mt-1 shadow-[0_0_10px_rgba(61,253,152,0.1)] disabled:opacity-50" />
+                        </ToastForm>
+                      ) : (
+                        <div className="mt-4 pt-4 border-t border-white/10">
+                          <p className="text-xs text-[#3dfd98] font-bold uppercase mb-1">Payment Link Shared</p>
+                          <a href={lead.shop_payment_url} target="_blank" className="text-white hover:text-[#a990ff] text-sm font-medium break-all underline">{lead.shop_payment_url}</a>
                         </div>
                       )}
                     </div>
@@ -193,7 +244,7 @@ async function ShopDashboardContent() {
   );
 }
 
-export default function ShopDashboard() {
+export default function ShopDashboard(props: { searchParams: Promise<{ filter?: string }> }) {
   return (
     <Suspense fallback={
       <div className="flex-1 w-full flex items-center justify-center min-h-[50vh] text-white">
@@ -206,7 +257,7 @@ export default function ShopDashboard() {
         </div>
       </div>
     }>
-      <ShopDashboardContent />
+      <ShopDashboardContent searchParams={props.searchParams} />
     </Suspense>
   );
 }

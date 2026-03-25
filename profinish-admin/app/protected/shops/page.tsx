@@ -40,13 +40,18 @@ async function updateShopStatus(formData: FormData) {
 
       // 2. Send the email using a provider like Resend
       try {
-        await resend.emails.send({
+        const { data, error } = await resend.emails.send({
           from: "Profinish <onboarding@resend.dev>",
           to: [shop.contact_email],
           subject: "Your Shop Account is Approved!",
           html: `<p>Hi <strong>${shop.name}</strong>,</p><p>Great news! Your account has been approved by the Profinish administrator.</p><p>You can now log in to the shop portal to view and estimate leads.</p><p><a href="https://profinish-admin.vercel.app/auth/login" style="display:inline-block;padding:12px 24px;background-color:#6e45ff;color:white;text-decoration:none;border-radius:8px;font-weight:bold;margin-top:16px;">Log In to Shop Portal</a></p>`,
         });
-        console.log("✅ Approval email sent!");
+        
+        if (error) {
+          console.error("❌ Resend API Error:", error);
+        } else {
+          console.log("✅ Approval email sent!", data);
+        }
       } catch (error) {
         console.error("❌ Failed to send email", error);
       }

@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { Suspense } from "react";
 import CheckoutButton from "@/components/checkout-button";
 import { SubmitActionButton } from "@/components/submit-action-button";
+import { ToastForm } from "@/components/toast-form";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "re_dummy");
@@ -90,22 +91,36 @@ async function emailCustomerInvoice(formData: FormData) {
   const leadId = formData.get("leadId") as string;
   const customerEmail = formData.get("customerEmail") as string;
   const customerName = formData.get("customerName") as string;
+  const shopPaymentUrl = formData.get("shopPaymentUrl") as string;
   
   try {
     const invoiceUrl = `https://profinish-admin.vercel.app/invoice/${leadId}`;
     
-    await resend.emails.send({
+    let paymentHtml = "";
+    if (shopPaymentUrl) {
+      paymentHtml = `<p style="margin-top: 24px;"><a href="${shopPaymentUrl}" style="display:inline-block;padding:12px 24px;background-color:#6e45ff;color:white;text-decoration:none;border-radius:8px;font-weight:bold;">Pay Shop Directly</a></p>`;
+    }
+    
+    const { data, error } = await resend.emails.send({
       from: "Profinish <onboarding@resend.dev>",
       to: [customerEmail],
       subject: "Your Profinish Service Invoice",
-      html: `<p>Hi <strong>${customerName}</strong>,</p><p>Thank you for choosing Profinish! Your service is complete and your invoice is ready.</p><p><a href="${invoiceUrl}" style="display:inline-block;padding:12px 24px;background-color:#3dfd98;color:#020204;text-decoration:none;border-radius:8px;font-weight:bold;margin-top:16px;">View & Print Invoice</a></p>`,
+      html: `<p>Hi <strong>${customerName}</strong>,</p><p>Thank you for choosing Profinish! Your service is complete and your invoice is ready.</p><p><a href="${invoiceUrl}" style="display:inline-block;padding:12px 24px;background-color:#3dfd98;color:#020204;text-decoration:none;border-radius:8px;font-weight:bold;margin-top:16px;">View & Print Invoice</a></p>${paymentHtml}`,
     });
-    console.log("✅ Invoice emailed to customer!");
+    
+    if (error) {
+      console.error("❌ Resend API Error:", error);
+      return { error: error.message };
+    } else {
+      console.log("✅ Invoice emailed to customer!", data);
+    }
   } catch (error) {
     console.error("❌ Failed to send invoice email", error);
+    return { error: error.message };
   }
   
   revalidatePath(`/protected/lead/${leadId}`);
+  return { success: true };
 }
 
 async function decodeVin(formData: FormData) {
@@ -329,6 +344,13 @@ async function LeadDetailsContent({ params }: { params: Promise<{ id: string }> 
               <a href={lead.final_photos_url} target="_blank" className="text-white hover:text-[#3dfd98] font-medium break-all underline decoration-white/30 underline-offset-2">{lead.final_photos_url}</a>
             </div>
           )}
+          
+          {lead.shop_payment_url && (
+            <div className="mb-6 p-4 bg-yellow-400/10 border border-yellow-400/20 rounded-xl">
+              <p className="text-xs text-yellow-400 font-bold uppercase mb-2 tracking-wider">Shop's Customer Payment Link</p>
+              <a href={lead.shop_payment_url} target="_blank" className="text-white hover:text-yellow-400 font-medium break-all underline decoration-white/30 underline-offset-2">{lead.shop_payment_url}</a>
+            </div>
+          )}
 
           <form action={updateSchedule} className="flex flex-col gap-4">
             <input type="hidden" name="leadId" value={lead.id} />
@@ -489,16 +511,17 @@ async function LeadDetailsContent({ params }: { params: Promise<{ id: string }> 
                 </button>
               </form>
 
-              <form action={emailCustomerInvoice} className="w-full">
+              <ToastForm action={emailCustomerInvoice} successMessage="Invoice emailed successfully!" className="w-full">
                 <input type="hidden" name="leadId" value={lead.id} />
                 <input type="hidden" name="customerEmail" value={lead.customer_email} />
                 <input type="hidden" name="customerName" value={lead.customer_name} />
+                <input type="hidden" name="shopPaymentUrl" value={lead.shop_payment_url || ""} />
                 <SubmitActionButton 
                   idleText="✉️ Email Invoice to Customer"
                   loadingText="✉️ Sending Email..."
                   className="w-full mb-2 text-center px-8 py-3 bg-[#6e45ff]/20 text-[#a990ff] hover:bg-[#6e45ff]/30 border border-[#6e45ff]/30 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
-              </form>
+              </ToastForm>
 
               <a 
                 href={`/invoice/${lead.id}`} 

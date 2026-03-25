@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Toaster } from "sonner";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -30,6 +31,8 @@ export default function RootLayout({
           <main className="flex-1 flex flex-col">
             {children}
           </main>
+
+          <Toaster theme="dark" position="bottom-right" richColors />
 
           {/* Global Footer with Disclaimer (Hidden when printing invoices) */}
           <footer className="w-full flex flex-col items-center justify-center border-t border-white/10 mt-auto text-center text-xs gap-6 py-12 text-gray-500 print:hidden">

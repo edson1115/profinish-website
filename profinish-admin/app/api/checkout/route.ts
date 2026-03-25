@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/app/config";
+import Stripe from "stripe";
 
 export async function POST(req: Request) {
   try {
@@ -9,6 +9,17 @@ export async function POST(req: Request) {
     if (!leadId || !amount) {
       return NextResponse.json({ error: "Missing leadId or amount" }, { status: 400 });
     }
+
+    // Get the Stripe key at request-time to avoid any build cache issues
+    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeKey || !stripeKey.startsWith("sk_")) {
+      console.error("❌ Invalid Stripe Key Detected:", stripeKey);
+      return NextResponse.json({ error: "Invalid or missing Stripe Secret Key. Must start with sk_" }, { status: 500 });
+    }
+
+    const stripe = new Stripe(stripeKey, {
+      apiVersion: '2026-02-25.clover',
+    });
 
     // Stripe expects amounts in cents ($100.00 = 10000)
     const amountInCents = Math.round(amount * 100);
