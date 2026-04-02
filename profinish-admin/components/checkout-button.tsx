@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface CheckoutButtonProps {
   leadId: string;
@@ -24,12 +25,18 @@ export default function CheckoutButton({ leadId, amount }: CheckoutButtonProps) 
       });
 
       const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate payment link");
+      }
 
       if (data.url) {
         setPaymentUrl(data.url);
+        toast.success("Payment link generated!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating checkout link:", error);
+      toast.error(error.message || "Something went wrong.");
     } finally {
       setIsLoading(false);
     }

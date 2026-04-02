@@ -11,7 +11,8 @@ export async function POST(req: Request) {
     }
 
     // Get the Stripe key at request-time to avoid any build cache issues
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    // We also use .trim() and .replace() to safely remove any accidental spaces or quotation marks!
+    const stripeKey = (process.env.STRIPE_SECRET_KEY || "").trim().replace(/^["']|["']$/g, "");
     if (!stripeKey || !stripeKey.startsWith("sk_")) {
       console.error("❌ Invalid Stripe Key Detected:", stripeKey);
       return NextResponse.json({ error: "Invalid or missing Stripe Secret Key. Must start with sk_" }, { status: 500 });
@@ -24,8 +25,10 @@ export async function POST(req: Request) {
     // Stripe expects amounts in cents ($100.00 = 10000)
     const amountInCents = Math.round(amount * 100);
 
-    // Get the base URL for success/cancel redirects (Fallback to localhost for local testing)
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    // Dynamically get the base URL so it works flawlessly on Vercel and Localhost
+    const protocol = req.headers.get("x-forwarded-proto") || "https";
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
 
     // Create Checkout Sessions from body params.
     const session = await stripe.checkout.sessions.create({

@@ -114,9 +114,9 @@ async function emailCustomerInvoice(formData: FormData) {
     } else {
       console.log("✅ Invoice emailed to customer!", data);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Failed to send invoice email", error);
-    return { error: error.message };
+    return { error: error.message || "An unknown error occurred while sending the email." };
   }
   
   revalidatePath(`/protected/lead/${leadId}`);
