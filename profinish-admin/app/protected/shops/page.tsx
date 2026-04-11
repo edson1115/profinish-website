@@ -4,9 +4,8 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { Suspense } from "react";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY || "re_dummy");
+import { ToastForm } from "@/components/toast-form";
+import { SubmitActionButton } from "@/components/submit-action-button";
 
 async function updateShopStatus(formData: FormData) {
   "use server";
@@ -38,27 +37,50 @@ async function updateShopStatus(formData: FormData) {
         await supabaseAdmin.auth.admin.updateUserById(shop.auth_id, { email_confirm: true });
       }
 
-      // 2. Send the email using a provider like Resend
-      try {
-        const { data, error } = await resend.emails.send({
-          from: "Profinish <onboarding@resend.dev>",
-          to: [shop.contact_email],
-          subject: "Your Shop Account is Approved!",
-          html: `<p>Hi <strong>${shop.name}</strong>,</p><p>Great news! Your account has been approved by the Profinish administrator.</p><p>You can now log in to the shop portal to view and estimate leads.</p><p><a href="https://profinish-admin.vercel.app/auth/login" style="display:inline-block;padding:12px 24px;background-color:#6e45ff;color:white;text-decoration:none;border-radius:8px;font-weight:bold;margin-top:16px;">Log In to Shop Portal</a></p>`,
-        });
-        
-        if (error) {
-          console.error("❌ Resend API Error:", error);
-        } else {
-          console.log("✅ Approval email sent!", data);
-        }
-      } catch (error) {
-        console.error("❌ Failed to send email", error);
-      }
     }
   }
 
   revalidatePath("/protected/shops");
+}
+
+async function addVendor(formData: FormData) {
+  "use server";
+  const shopName = formData.get("shopName") as string;
+  const email = formData.get("email") as string;
+  const serviceType = formData.get("serviceType") as string;
+
+  if (!email) return { error: "Email is required" };
+
+  try {
+    const supabaseAdmin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    // 1. Invite the user via Supabase Auth (This sends a built-in Supabase invite email, bypassing Resend)
+    const { data: authData } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      data: { name: shopName },
+      // Redirects the user here after they click the email link and authenticate
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/update-password`,
+    });
+
+    // 2. Immediately create the shop record and link the auth_id
+    const { error: dbError } = await supabaseAdmin.from("shops").insert({
+      name: shopName,
+      contact_email: email,
+      service_type: serviceType || "General",
+      status: "APPROVED",
+      auth_id: authData?.user?.id || null,
+    });
+
+    if (dbError) return { error: dbError.message };
+
+    revalidatePath("/protected/shops");
+    return { success: true };
+  } catch (error: any) {
+    console.error("❌ Failed to add vendor", error);
+    return { error: error.message || "Failed to add vendor." };
+  }
 }
 
 async function ShopsManagementContent() {
@@ -82,6 +104,26 @@ async function ShopsManagementContent() {
         <Link href="/protected" className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-bold transition-all">
           &larr; Back to Dashboard
         </Link>
+      </div>
+
+      <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
+        <h2 className="text-xl font-bold mb-4 text-[#6e45ff]">Add a New Vendor</h2>
+        <p className="text-sm text-gray-400 mb-6">Directly add a new vendor (like glass or keys). This will create their account and automatically approve them.</p>
+        <ToastForm action={addVendor} successMessage="Vendor added successfully!" className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="flex-1 w-full">
+            <label className="block text-sm font-medium text-gray-400 mb-2">Shop Name</label>
+            <input type="text" name="shopName" placeholder="e.g. Bob's Keys" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#6e45ff]" />
+          </div>
+          <div className="flex-1 w-full">
+            <label className="block text-sm font-medium text-gray-400 mb-2">Service Type</label>
+            <input type="text" name="serviceType" placeholder="e.g. Glass, Keys, PDR" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#6e45ff]" />
+          </div>
+          <div className="flex-1 w-full">
+            <label className="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
+            <input type="email" name="email" placeholder="shop@example.com" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#6e45ff]" />
+          </div>
+          <SubmitActionButton idleText="➕ Add Vendor" loadingText="Adding..." className="w-full md:w-auto px-8 py-3 bg-[#6e45ff] hover:bg-[#a990ff] text-white rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-50" />
+        </ToastForm>
       </div>
 
       <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
