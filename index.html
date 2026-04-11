@@ -70,19 +70,6 @@
             box-shadow: 0 10px 40px -10px rgba(242, 101, 34, 0.15);
             border-color: rgba(242, 101, 34, 0.3);
         }
-        
-        /* AI Scanning Animations */
-        @keyframes scanLine {
-            0% { transform: translateY(0); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(190px); opacity: 0; }
-        }
-        @keyframes laserSweep {
-            0% { transform: translateX(-60px); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateX(60px); opacity: 0; }
-        }
     </style>
 </head>
 <body class="bg-grain relative antialiased selection:bg-orange-500 selection:text-white">
@@ -97,6 +84,14 @@
             <div class="hidden md:flex gap-8 text-sm font-medium text-slate-300">
                 <a href="#services" class="hover:text-white transition-colors">Services</a>
                 <a href="#quote" class="hover:text-white transition-colors">Start Quote</a>
+                <a href="tel:+18303563456" class="hover:text-white transition-colors flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    (830) 356-3456
+                </a>
+                <a href="https://profinish-admin.vercel.app/auth/login" target="_blank" class="hover:text-orange-500 transition-colors flex items-center gap-1">
+                    Partner Login
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
             </div>
             <a href="#quote" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-full text-sm font-bold transition-all shadow-[0_0_20px_rgba(242,101,34,0.3)] hover:shadow-[0_0_30px_rgba(242,101,34,0.5)]">
                 Get an Estimate
@@ -133,49 +128,21 @@
                 </div>
             </div>
             
-            <!-- Hero Visual (Real AI Scanner Mockup) -->
+            <!-- Hero Visual (Clean Professional Mockup) -->
             <div class="relative lg:h-[500px] w-full fade-in delay-300 hidden lg:block">
-                <div class="absolute right-0 top-1/2 -translate-y-1/2 w-4/5 glass-panel rounded-3xl p-6 flex flex-col justify-between border-t border-l border-navy-600 shadow-2xl overflow-hidden group">
+                <div class="absolute right-0 top-1/2 -translate-y-1/2 w-full max-w-md h-[400px] rounded-3xl shadow-2xl overflow-hidden group border border-navy-700">
+                    <img src="https://images.unsplash.com/photo-1586864387465-b7787f7d1b37?q=80&w=800&auto=format&fit=crop" alt="Commercial Fleet Operations" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105">
                     
-                    <!-- AI Scanning Image Area -->
-                    <div class="relative w-full h-48 rounded-2xl overflow-hidden mb-6 border border-navy-700 bg-navy-900">
-                        <!-- High-res Unsplash car paint image -->
-                        <img src="https://images.unsplash.com/photo-1605553531952-4112eb893f41?auto=format&fit=crop&w=800&q=80" alt="Vehicle Surface" class="w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 transition-all duration-700">
-                        
-                        <!-- Glowing Scan Line -->
-                        <div class="absolute top-0 left-0 w-full h-0.5 bg-orange-500 shadow-[0_0_15px_#F26522] animate-[scanLine_3s_ease-in-out_infinite]"></div>
-                        
-                        <!-- Topographic Overlay Grid -->
-                        <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
-                        
-                        <!-- Detection Box Target -->
-                        <div class="absolute top-6 right-6 border border-orange-500/80 bg-navy-900/60 backdrop-blur-md rounded-lg p-2 text-[10px] font-mono shadow-[0_0_15px_rgba(242,101,34,0.2)]">
-                            <span class="text-orange-500 font-bold block mb-0.5 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-ping"></span> Anomaly Found
-                            </span>
-                            <span class="text-white">Depth: 4.2mm</span>
-                        </div>
-                    </div>
-
-                    <div class="relative z-10">
-                        <div class="flex justify-between items-center mb-4 border-b border-navy-700 pb-3">
-                            <h3 class="font-bold text-slate-300 font-mono text-xs tracking-widest flex items-center gap-2">
-                                VISION_DIAGNOSTIC
-                            </h3>
-                            <span class="px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded text-[10px] font-bold uppercase tracking-widest">Active</span>
-                        </div>
-                        <div class="space-y-3">
-                            <div class="bg-navy-900/80 rounded-xl border border-navy-700 p-3 flex items-center justify-between">
-                                <span class="text-xs text-slate-400 font-mono">Structural Integrity</span>
-                                <div class="w-32 h-1.5 bg-navy-800 rounded-full overflow-hidden">
-                                    <div class="w-[92%] h-full bg-green-500 rounded-full"></div>
-                                </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/40 to-transparent"></div>
+                    
+                    <div class="absolute bottom-8 left-8 right-8">
+                        <div class="glass-panel rounded-2xl p-5 flex items-center gap-4 border border-white/10 shadow-xl backdrop-blur-md">
+                            <div class="bg-green-500/20 p-3 rounded-xl text-green-400 flex-shrink-0">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <div class="bg-navy-900/80 rounded-xl border border-navy-700 p-3 flex items-center justify-between">
-                                <span class="text-xs text-slate-400 font-mono">Surface Tension</span>
-                                <div class="w-32 h-1.5 bg-navy-800 rounded-full overflow-hidden">
-                                    <div class="w-[35%] h-full bg-orange-500 rounded-full shadow-[0_0_10px_#F26522]"></div>
-                                </div>
+                            <div>
+                                <p class="text-white font-bold text-base leading-tight">Certified Network</p>
+                                <p class="text-slate-400 text-sm mt-0.5">B2B Commercial & Fleets</p>
                             </div>
                         </div>
                     </div>
@@ -222,21 +189,7 @@
                     
                     <!-- HUD Calibration Visual -->
                     <div class="relative z-10 w-full sm:w-56 h-40 bg-navy-900 rounded-2xl border border-navy-700 flex flex-col items-center justify-center overflow-hidden">
-                         <img src="https://images.unsplash.com/photo-1506015391300-415214d188bd?auto=format&fit=crop&w=500&q=80" alt="Windshield Interior" class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-luminosity group-hover:opacity-60 transition-opacity duration-500">
-                         
-                         <div class="absolute inset-0 flex items-center justify-center">
-                            <!-- Animated HUD Target -->
-                            <div class="w-20 h-20 border-[1px] border-green-500/40 rounded-full flex items-center justify-center relative">
-                                <div class="absolute inset-0 border border-green-500/60 rounded-full animate-ping opacity-20"></div>
-                                <div class="w-12 h-12 border border-green-500/80 flex items-center justify-center relative">
-                                    <div class="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-green-500"></div>
-                                    <div class="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-green-500"></div>
-                                    <div class="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 border-green-500"></div>
-                                    <div class="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-green-500"></div>
-                                    <span class="text-[9px] font-mono font-bold text-green-400">LOCKED</span>
-                                </div>
-                            </div>
-                         </div>
+                         <img src="https://images.unsplash.com/photo-1616432653765-1d48c081bd6b?q=80&w=500&auto=format&fit=crop" alt="Commercial Transit Van" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500">
                     </div>
                 </div>
 
@@ -250,14 +203,44 @@
                         <p class="text-slate-400 text-sm leading-relaxed">Curb rash, bends, or cracks? We utilize CNC machining and exact color-matching technology to make your damaged alloys look brand new.</p>
                     </div>
                     
-                    <!-- CNC Laser Visual -->
                     <div class="relative z-10 w-full sm:w-56 h-40 bg-navy-900 rounded-2xl border border-navy-700 flex items-center justify-center overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&w=500&q=80" alt="Alloy Wheel" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-luminosity group-hover:scale-110 transition-transform duration-700">
-                        
-                        <!-- CNC Laser Sweep -->
-                        <div class="absolute inset-y-0 left-1/2 w-0.5 bg-orange-500 shadow-[0_0_15px_#F26522] animate-[laserSweep_2.5s_ease-in-out_infinite_alternate]"></div>
-                        
-                        <div class="absolute bottom-2 left-3 text-[9px] font-mono text-orange-400 bg-navy-900/80 px-2 py-0.5 rounded border border-orange-500/30">CNC_MAPPING_ACTIVE</div>
+                        <img src="https://images.unsplash.com/photo-1555520935-71fc6a761e2e?q=80&w=500&auto=format&fit=crop" alt="Medium Duty Truck F250" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                </div>
+
+                <!-- Wide Feature 3 -->
+                <div class="md:col-span-2 glass-panel rounded-3xl p-8 bento-hover flex flex-col sm:flex-row gap-8 items-center bg-navy-800/40 relative overflow-hidden group">
+                    <div class="relative z-10 flex-1">
+                        <div class="bg-navy-700 w-12 h-12 rounded-xl flex items-center justify-center mb-4 border border-navy-600">
+                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m14-6h2m-2 6h2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Telematics & Fleet Tech</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Keep your fleet connected and safe. We install and service Geotabs, Netradyne cameras, backup cameras, and Always-On displays.</p>
+                    </div>
+                    <div class="relative z-10 w-full sm:w-56 h-40 bg-navy-900 rounded-2xl border border-navy-700 flex items-center justify-center overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?q=80&w=500&auto=format&fit=crop" alt="Freightliner Semi Truck" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                </div>
+
+                <!-- Square Feature -->
+                <div class="md:col-span-1 glass-panel rounded-3xl p-8 bento-hover flex flex-col bg-navy-800/40 relative overflow-hidden group">
+                    <div class="bg-navy-700 w-12 h-12 rounded-xl flex items-center justify-center mb-4 border border-navy-600">
+                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Keys & Fobs</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mt-2">Lost a key or need a spare? We program and replace modern key fobs and transponder keys quickly and securely.</p>
+                </div>
+
+                <!-- Full Width Feature -->
+                <div class="md:col-span-3 glass-panel rounded-3xl p-8 bento-hover flex flex-col sm:flex-row gap-8 items-center bg-gradient-to-r from-navy-800 to-navy-900 border border-navy-600 relative overflow-hidden group">
+                    <div class="relative z-10 flex-1 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+                        <div class="bg-orange-500/10 w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 border border-orange-500/20">
+                            <svg class="w-8 h-8 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2">Battery & Electrical Services</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed max-w-3xl">Don't let a dead battery stall your operations. We provide comprehensive battery testing, replacement, and electrical system diagnostics for all commercial vehicles, ensuring your fleet stays on the road.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -304,6 +287,44 @@
                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-3">
                         <span class="w-6 h-px bg-slate-600"></span> Vehicle Specs
                     </h3>
+                    
+                    <!-- Visual Fleet Selection Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <!-- Transit -->
+                        <label class="cursor-pointer relative overflow-hidden rounded-2xl border border-navy-700 transition-all h-40 group">
+                            <input type="radio" name="fleet_type" value="Light Duty (Transit/ProMaster)" class="peer sr-only" required>
+                            <img src="https://images.unsplash.com/photo-1616432653765-1d48c081bd6b?q=80&w=500&auto=format&fit=crop" alt="Light Duty Van" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/40 to-transparent peer-checked:bg-orange-500/20 transition-all"></div>
+                            <div class="absolute inset-0 border-2 border-transparent peer-checked:border-orange-500 rounded-2xl transition-all shadow-[inset_0_0_20px_rgba(242,101,34,0)] peer-checked:shadow-[inset_0_0_20px_rgba(242,101,34,0.3)]"></div>
+                            <div class="absolute bottom-0 left-0 w-full p-4 z-10">
+                                <div class="text-white font-bold text-lg mb-1 group-hover:text-orange-400 peer-checked:text-orange-400 transition-colors">Light Duty Vans</div>
+                                <div class="text-slate-300 text-xs">Transit, ProMaster</div>
+                            </div>
+                        </label>
+                        <!-- F250 -->
+                        <label class="cursor-pointer relative overflow-hidden rounded-2xl border border-navy-700 transition-all h-40 group">
+                            <input type="radio" name="fleet_type" value="Medium Duty (F-250/2500)" class="peer sr-only" required>
+                            <img src="https://images.unsplash.com/photo-1555520935-71fc6a761e2e?q=80&w=500&auto=format&fit=crop" alt="Medium Duty Truck" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/40 to-transparent peer-checked:bg-orange-500/20 transition-all"></div>
+                            <div class="absolute inset-0 border-2 border-transparent peer-checked:border-orange-500 rounded-2xl transition-all shadow-[inset_0_0_20px_rgba(242,101,34,0)] peer-checked:shadow-[inset_0_0_20px_rgba(242,101,34,0.3)]"></div>
+                            <div class="absolute bottom-0 left-0 w-full p-4 z-10">
+                                <div class="text-white font-bold text-lg mb-1 group-hover:text-orange-400 peer-checked:text-orange-400 transition-colors">Medium Duty</div>
+                                <div class="text-slate-300 text-xs">F-250, Dodge 2500</div>
+                            </div>
+                        </label>
+                        <!-- Freightliner -->
+                        <label class="cursor-pointer relative overflow-hidden rounded-2xl border border-navy-700 transition-all h-40 group">
+                            <input type="radio" name="fleet_type" value="Heavy Duty (Freightliner/Semi)" class="peer sr-only" required>
+                            <img src="https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?q=80&w=500&auto=format&fit=crop" alt="Heavy Duty Semi Truck" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/40 to-transparent peer-checked:bg-orange-500/20 transition-all"></div>
+                            <div class="absolute inset-0 border-2 border-transparent peer-checked:border-orange-500 rounded-2xl transition-all shadow-[inset_0_0_20px_rgba(242,101,34,0)] peer-checked:shadow-[inset_0_0_20px_rgba(242,101,34,0.3)]"></div>
+                            <div class="absolute bottom-0 left-0 w-full p-4 z-10">
+                                <div class="text-white font-bold text-lg mb-1 group-hover:text-orange-400 peer-checked:text-orange-400 transition-colors">Heavy Duty</div>
+                                <div class="text-slate-300 text-xs">Freightliner, Semis</div>
+                            </div>
+                        </label>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">VIN <span class="text-slate-600 font-normal">(Optional)</span></label>
@@ -332,6 +353,9 @@
                                 <option value="glass">Auto Glass Replacement</option>
                                 <option value="pdr">Paintless Dent Repair (PDR)</option>
                                 <option value="wheel">Wheel & Rim Repair</option>
+                                <option value="telematics">Telematics & Cameras</option>
+                                <option value="batteries">Battery Replacement</option>
+                                <option value="keys">Keys & Key Fobs</option>
                                 <option value="other">Other / Not Sure</option>
                             </select>
                         </div>
@@ -403,6 +427,10 @@
             <div class="flex items-center gap-3">
                 <img src="./brand_assets/ProFinishLogo.png" alt="ProFinish Logo" class="h-8 w-auto grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300 rounded">
                 <span class="font-bold text-slate-400">ProFinish Glass & Body</span>
+            </div>
+            <div class="flex gap-6 text-sm font-medium text-slate-500">
+                <a href="tel:+18303563456" class="hover:text-white transition-colors">(830) 356-3456</a>
+                <a href="mailto:profi@goprofinish.com" class="hover:text-orange-500 transition-colors">Partners (Join Network)</a>
             </div>
             <p class="text-slate-500 text-sm">© 2026 ProFinish. All rights reserved.</p>
         </div>
@@ -477,7 +505,7 @@
                     service_needed: formData.get('service'),
                     vin: formData.get('vin'),
                     license_plate: formData.get('license_plate'),
-                    vehicle_info: formData.get('vehicle_info'),
+                    vehicle_info: `[${formData.get('fleet_type')}] ${formData.get('vehicle_info')}`,
                     message: formData.get('message'),
                     image_urls: imageUrls,
                     status: 'NEW'
