@@ -93,12 +93,27 @@
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                 </a>
             </div>
-            <a href="index.html" class="text-slate-400 hover:text-white text-sm font-bold transition-all flex items-center gap-2">
+            <a href="index.html" class="hidden md:flex text-slate-400 hover:text-white text-sm font-bold transition-all items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Back Home
             </a>
+            <button id="nav-toggle" class="md:hidden text-white focus:outline-none ml-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
         </div>
     </nav>
+
+    <!-- Mobile Menu -->
+    <div id="nav-menu" class="fixed inset-0 bg-navy-900/95 backdrop-blur-xl z-[60] flex flex-col items-center justify-center gap-8 transition-all duration-300 opacity-0 pointer-events-none">
+        <button id="nav-close" class="absolute top-6 right-6 text-white focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+        <a href="about.html" class="text-2xl font-bold text-white hover:text-orange-500 transition-colors">About</a>
+        <a href="gallery.html" class="text-2xl font-bold text-white hover:text-orange-500 transition-colors">Work</a>
+        <a href="index.html#services" class="text-2xl font-bold text-white hover:text-orange-500 transition-colors">Services</a>
+        <a href="https://profinish-admin.vercel.app/auth/login" target="_blank" class="text-2xl font-bold text-white hover:text-orange-500 transition-colors">Partner Login</a>
+        <a href="tel:+18303563456" class="text-2xl font-bold text-orange-500 transition-colors">(830) 356-3456</a>
+    </div>
 
     <!-- Split Screen Contact & Video Layout -->
     <main class="flex-grow pt-32 pb-20 px-6 max-w-[90rem] mx-auto w-full grid lg:grid-cols-2 gap-8 lg:gap-16 items-start relative z-10">
@@ -233,6 +248,7 @@
                     </div>
 
                     <div class="pt-4">
+                        <p class="text-xs text-slate-500 mb-4 text-center">By providing your phone number, you agree to receive text messages from ProFinish regarding your service requests. Message frequency varies. Message and data rates may apply. Reply STOP to opt out at any time.</p>
                         <button type="submit" id="submit-btn" class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(242,101,34,0.3)] hover:shadow-[0_0_30px_rgba(242,101,34,0.5)] transition-all active:scale-[0.98] flex items-center justify-center gap-3">
                             <span>Submit for Estimate</span>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -274,6 +290,23 @@
         const supabaseUrl = 'https://qzlxhrbuaouaslxsvycd.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6bHhocmJ1YW91YXNseHN2eWNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTM1ODYsImV4cCI6MjA4OTI2OTU4Nn0.ITe6JRomof5tda44t0fmonUBCJoh3W-F0cY57R2RaWM';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Mobile Menu Logic
+        const navToggle = document.getElementById('nav-toggle');
+        const navClose = document.getElementById('nav-close');
+        const navMenu = document.getElementById('nav-menu');
+        const navLinks = navMenu ? navMenu.querySelectorAll('a') : [];
+
+        function toggleMenu() {
+            if (navMenu) {
+                navMenu.classList.toggle('opacity-0');
+                navMenu.classList.toggle('pointer-events-none');
+            }
+        }
+
+        if(navToggle) navToggle.addEventListener('click', toggleMenu);
+        if(navClose) navClose.addEventListener('click', toggleMenu);
+        navLinks.forEach(link => link.addEventListener('click', toggleMenu));
 
         // Dynamic File Upload UI
         document.getElementById('images').addEventListener('change', function(e) {
