@@ -523,3 +523,52 @@ body:has(.blog-post-content) span {
     font-size: 1.5rem;
   }
 }
+
+/* FORCE FIX: Soro blog text on dark background */
+html body,
+html body * {
+  color: #ffffff !important;
+}
+
+/* Keep buttons/nav/icons from getting weird */
+img,
+svg,
+path {
+  color: inherit;
+}
+
+/* Blog-specific readability */
+body main,
+body article,
+body section,
+body article *,
+body main *,
+.blog-post-content,
+.blog-post-content *,
+[class*="blog"],
+[class*="blog"] *,
+[class*="article"],
+[class*="article"] *,
+[class*="post"],
+[class*="post"] * {
+  color: #ffffff !important;
+}
+
+/* Paragraphs from Soro/imported content */
+p,
+li,
+span,
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #ffffff !important;
+}
+
+/* Links */
+a {
+  color: #f2b705 !important;
+}
