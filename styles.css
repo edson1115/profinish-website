@@ -114,3 +114,19 @@ summary::-webkit-details-marker { display: none; }
 summary::after { content: '+'; position: absolute; right: 0; font-weight: 700; color: var(--brand); font-size: 1.2rem; line-height: 1; }
 details[open] summary::after { content: '-'; }
 details p { margin: 12px 0 0; color: var(--muted); line-height: 1.6; }
+
+
+.blog-post-content,
+.blog-post-content p,
+.blog-post-content li,
+.blog-post-content span,
+.blog-post-content div {
+    color: #ffffff !important;
+}
+
+.blog-post-content h1,
+.blog-post-content h2,
+.blog-post-content h3,
+.blog-post-content h4 {
+    color: #ffffff !important;
+}
