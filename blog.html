@@ -71,6 +71,48 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
+
+        /* FORCE SORO BLOG TEXT TO WHITE */
+        #soro-blog,
+        #soro-blog *,
+        #soro-blog article,
+        #soro-blog article *,
+        #soro-blog section,
+        #soro-blog section *,
+        #soro-blog div,
+        #soro-blog p,
+        #soro-blog span,
+        #soro-blog li,
+        #soro-blog h1,
+        #soro-blog h2,
+        #soro-blog h3,
+        #soro-blog h4,
+        #soro-blog h5,
+        #soro-blog h6 {
+            color: #ffffff !important;
+        }
+
+        #soro-blog a,
+        #soro-blog a * {
+            color: #F26522 !important;
+        }
+
+        #soro-blog p,
+        #soro-blog li {
+            line-height: 1.8 !important;
+            font-size: 1.05rem;
+        }
+
+        #soro-blog h1,
+        #soro-blog h2,
+        #soro-blog h3 {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        #soro-blog img {
+            color: initial !important;
+        }
     </style>
 </head>
 <body class="bg-grain relative antialiased selection:bg-orange-500 selection:text-white min-h-screen flex flex-col">
@@ -193,6 +235,43 @@
             if(navToggle) navToggle.addEventListener('click', toggleMenu);
             if(navClose) navClose.addEventListener('click', toggleMenu);
             navLinks.forEach(link => link.addEventListener('click', toggleMenu));
+
+            // Force Soro blog text to white after the external Soro script injects the article.
+            const soroBlog = document.getElementById('soro-blog');
+
+            function forceSoroBlogTextWhite() {
+                if (!soroBlog) return;
+
+                const textSelectors = 'article, section, div, p, span, li, h1, h2, h3, h4, h5, h6';
+                soroBlog.querySelectorAll(textSelectors).forEach(el => {
+                    el.style.setProperty('color', '#ffffff', 'important');
+                });
+
+                soroBlog.querySelectorAll('a, a *').forEach(el => {
+                    el.style.setProperty('color', '#F26522', 'important');
+                });
+
+                soroBlog.querySelectorAll('p, li').forEach(el => {
+                    el.style.setProperty('line-height', '1.8', 'important');
+                });
+            }
+
+            forceSoroBlogTextWhite();
+
+            if (soroBlog) {
+                const soroObserver = new MutationObserver(forceSoroBlogTextWhite);
+                soroObserver.observe(soroBlog, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['style', 'class']
+                });
+
+                setTimeout(forceSoroBlogTextWhite, 500);
+                setTimeout(forceSoroBlogTextWhite, 1500);
+                setTimeout(forceSoroBlogTextWhite, 3000);
+            }
+
         });
     </script>
 </body>
