@@ -32,7 +32,6 @@
     </script>
 
     <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body { background-color: #050A14; color: #ffffff; }
@@ -665,10 +664,6 @@
 </footer>
 
     <script>
-        const supabaseUrl = 'https://qzlxhrbuaouaslxsvycd.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6bHhocmJ1YW91YXNseHN2eWNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTM1ODYsImV4cCI6MjA4OTI2OTU4Nn0.ITe6JRomof5tda44t0fmonUBCJoh3W-F0cY57R2RaWM';
-        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-
         // Mobile Menu
         const navToggle = document.getElementById('nav-toggle');
         const navClose = document.getElementById('nav-close');
@@ -717,14 +712,13 @@
                     status:              'new'
                 };
 
-                const { error } = await supabaseClient.from('fleet_tech_leads').insert([leadData]);
-                if (error) throw error;
-
-                // Zapier alert (same webhook pattern as the main form)
-                fetch('https://hooks.zapier.com/hooks/catch/26865650/uph4mob/', {
+                const submitRes = await fetch('/api/leads', {
                     method: 'POST',
-                    body: JSON.stringify({ ...leadData, source: 'fleet-tech-page' })
-                }).catch(console.error);
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ table: 'fleet_tech_leads', data: leadData })
+                });
+                const submitResult = await submitRes.json();
+                if (!submitResult.ok) throw new Error(submitResult.error || 'Submission failed');
 
                 form.reset();
                 formMessage.className = 'text-center mt-4 text-sm font-bold text-green-400';

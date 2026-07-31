@@ -338,30 +338,39 @@
             
             try {
                 let imageUrls = [];
+                let imageNote = '';
                 const imageFiles = document.getElementById('images').files;
-                
-                // 1. Upload Images
+
+                // 1. Upload Images (best-effort: a photo upload failure should
+                // never cost us the whole lead, so we swallow the error and
+                // flag it in the message instead of aborting the submission).
                 if (imageFiles.length > 0) {
                     btnText.textContent = 'Uploading photos...';
-                    for (const file of imageFiles) {
-                        const fileExt = file.name.split('.').pop();
-                        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-                        
-                        const { error: uploadError } = await supabaseClient.storage
-                            .from('damage-images')
-                            .upload(`public/${fileName}`, file);
-                            
-                        if (uploadError) throw uploadError;
-                        
-                        const { data: { publicUrl } } = supabaseClient.storage
-                            .from('damage-images')
-                            .getPublicUrl(`public/${fileName}`);
-                            
-                        imageUrls.push(publicUrl);
+                    try {
+                        for (const file of imageFiles) {
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+                            const { error: uploadError } = await supabaseClient.storage
+                                .from('damage-images')
+                                .upload(`public/${fileName}`, file);
+
+                            if (uploadError) throw uploadError;
+
+                            const { data: { publicUrl } } = supabaseClient.storage
+                                .from('damage-images')
+                                .getPublicUrl(`public/${fileName}`);
+
+                            imageUrls.push(publicUrl);
+                        }
+                    } catch (uploadErr) {
+                        console.error('Photo upload failed, continuing without photos:', uploadErr);
+                        imageUrls = [];
+                        imageNote = '\n\n[Note: customer attached photos but photo upload failed - follow up to request them directly.]';
                     }
                 }
-                
-                btnText.textContent = 'Encrypting & Sending...';
+
+                btnText.textContent = 'Sending...';
 
                 const leadData = {
                     customer_name: formData.get('name'),
@@ -371,20 +380,21 @@
                     vin: formData.get('vin'),
                     license_plate: formData.get('license_plate'),
                     vehicle_info: `[${formData.get('fleet_type')}] ${formData.get('vehicle_info')}`,
-                    message: formData.get('message'),
+                    message: `${formData.get('message') || ''}${imageNote}`,
                     image_urls: imageUrls,
                     status: 'NEW'
                 };
 
-                // 2. Insert into Supabase Database
-                const { error } = await supabaseClient.from('leads').insert([leadData]);
-                if (error) throw error;
-
-                // 3. Trigger Zapier Alert Webhook
-                fetch('https://hooks.zapier.com/hooks/catch/26865650/uph4mob/', {
+                // 2. Submit via server endpoint (DB write with an email
+                // fallback if the database is unreachable, plus the Zapier
+                // alert) instead of writing to Supabase directly from the browser.
+                const submitRes = await fetch('/api/leads', {
                     method: 'POST',
-                    body: JSON.stringify(leadData)
-                }).catch(console.error);
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ table: 'leads', data: leadData })
+                });
+                const submitResult = await submitRes.json();
+                if (!submitResult.ok) throw new Error(submitResult.error || 'Submission failed');
 
                 // Success UI
                 form.reset();
