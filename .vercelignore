@@ -1,0 +1,10 @@
+# Files that should never be served from goprofinish.com
+profinish-admin
+partials
+scripts
+temporary screenshots
+*.md
+*.mjs
+*.php
+brand_assets/screenshot.png
+brand_assets/localhost_3000_index.html.png

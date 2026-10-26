@@ -1,0 +1,46 @@
+/* Shared ProFinish layout styles (header, menu, call bar). */
+
+/* Decorative glows are wider than a phone screen; never let them widen the page. */
+html, body { overflow-x: clip; max-width: 100%; }
+
+.pf-skip {
+    position: absolute; left: 1rem; top: -100px; z-index: 100;
+    background: #F26522; color: #fff; padding: .75rem 1.25rem; border-radius: .75rem; font-weight: 700;
+}
+.pf-skip:focus { top: 1rem; }
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid #F26522;
+    outline-offset: 3px;
+}
+
+/* Desktop dropdowns: open on hover and on keyboard focus. */
+.pf-dd-menu {
+    opacity: 0; pointer-events: none; transform: translateY(4px);
+    transition: opacity .2s ease, transform .2s ease;
+}
+.pf-dd:hover .pf-dd-menu,
+.pf-dd:focus-within .pf-dd-menu,
+.pf-dd.is-open .pf-dd-menu {
+    opacity: 1; pointer-events: auto; transform: none;
+}
+
+/* Mobile menu */
+.pf-menu[hidden] { display: none; }
+.pf-menu { animation: pfFade .2s ease; }
+@keyframes pfFade { from { opacity: 0; } to { opacity: 1; } }
+body.pf-menu-open { overflow: hidden; }
+
+/* Keep the mobile call bar from covering the bottom of the page. */
+@media (max-width: 1023px) {
+    body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+    .pf-callbar { padding-bottom: calc(.75rem + env(safe-area-inset-bottom)); }
+}
+
+/* Honeypot field on lead forms: hidden from people, visible to bots. */
+.pf-hp { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    .reveal, .fade-in { opacity: 1 !important; transform: none !important; }
+}
