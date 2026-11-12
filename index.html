@@ -9,8 +9,8 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="brand_assets/ProFinishEliteFavicon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Outfit:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="brand_assets/profinish-mark.svg" type="image/svg+xml">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -24,6 +24,7 @@
                     },
                     fontFamily: {
                         sans: ['Outfit', 'sans-serif'],
+                        display: ['"Big Shoulders Display"', 'Outfit', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                     }
                 }
@@ -32,32 +33,23 @@
     </script>
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Custom CSS for Texture and Animations -->
+
     <style>
         body { background-color: #050A14; color: #ffffff; }
-        
-        /* Premium Grain Overlay */
+
+        /* Grain overlay */
         .bg-grain::before {
             content: ""; position: fixed; inset: 0;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
             pointer-events: none; z-index: 50; mix-blend-mode: overlay;
         }
-        
-        /* Custom Scrollbar */
+
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #050A14; }
         ::-webkit-scrollbar-thumb { background: #111D33; border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: #F26522; }
-        
-        /* Entrance Animations */
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-in { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .delay-100 { animation-delay: 100ms; }
-        .delay-200 { animation-delay: 200ms; }
-        .delay-300 { animation-delay: 300ms; }
-        
-        /* Glassmorphism Panels */
+
+        /* Shared header panel (used by the nav partial) */
         .glass-panel {
             background: rgba(10, 18, 32, 0.6);
             backdrop-filter: blur(12px);
@@ -65,13 +57,48 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
-        
-        /* Interactive Bento Hover */
-        .bento-hover { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
-        .bento-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 40px -10px rgba(242, 101, 34, 0.15);
-            border-color: rgba(242, 101, 34, 0.3);
+
+        /* Display type: heavy condensed lettering, like the side of a truck */
+        .pf-display { font-family: "Big Shoulders Display", Outfit, sans-serif; font-weight: 800; line-height: .95; letter-spacing: -0.005em; text-wrap: balance; }
+
+        /* Survey grid behind the hero */
+        .pf-grid {
+            background-image:
+                linear-gradient(rgba(161,176,200,.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(161,176,200,.07) 1px, transparent 1px);
+            background-size: 56px 56px;
+            -webkit-mask-image: radial-gradient(ellipse 75% 70% at 65% 45%, #000 30%, transparent 78%);
+                    mask-image: radial-gradient(ellipse 75% 70% at 65% 45%, #000 30%, transparent 78%);
+        }
+
+        /* One load sequence: headline, then the corridor map fills in from San Antonio outward */
+        @keyframes pfRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+        @keyframes pfPop  { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+        @keyframes pfShow { from { opacity: 0; } to { opacity: 1; } }
+        .pf-rise { opacity: 0; animation: pfRise .7s cubic-bezier(.16,1,.3,1) forwards; animation-delay: calc(var(--i, 0) * 90ms); }
+        .pf-stop { opacity: 0; transform-box: fill-box; transform-origin: center; animation: pfPop .5s cubic-bezier(.34,1.56,.64,1) forwards; animation-delay: calc(500ms + var(--i, 0) * 140ms); }
+        .pf-route, .pf-label { opacity: 0; animation: pfShow .6s ease forwards; animation-delay: calc(500ms + var(--i, 0) * 140ms); }
+        @keyframes pfPulse { 0% { opacity: .55; transform: scale(1); } 100% { opacity: 0; transform: scale(3.2); } }
+        .pf-base-pulse { transform-box: fill-box; transform-origin: center; animation: pfPulse 2.4s ease-out 1.6s infinite; opacity: 0; }
+
+        .pf-btn { transition: transform .15s ease, background-color .15s ease, border-color .15s ease; }
+        .pf-btn:active { transform: scale(.98); }
+
+        .pf-row { transition: background-color .15s ease; }
+        .pf-row:hover { background-color: rgba(17, 29, 51, .55); }
+        .pf-row:hover .pf-row-go { color: #F26522; }
+
+        .pf-field {
+            width: 100%; background: rgba(5,10,20,.8); border: 1px solid #1C2E4A; border-radius: .75rem;
+            padding: .875rem 1rem; color: #fff; outline: none; transition: border-color .15s ease;
+        }
+        .pf-field::placeholder { color: #55657f; }
+        .pf-field:focus { border-color: #F26522; box-shadow: 0 0 0 1px #F26522; }
+        .pf-label-text { display: block; font-size: .8125rem; font-weight: 500; color: #A1B0C8; margin: 0 0 .375rem .25rem; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .pf-rise, .pf-stop, .pf-route, .pf-label { opacity: 1 !important; transform: none !important; animation: none !important; }
+            .pf-base-pulse { animation: none !important; opacity: 0 !important; }
         }
     </style>
     <!-- PF:HEAD:START -->
@@ -94,7 +121,7 @@
       "name": "ProFinish Elite Glass & Keys",
       "description": "Mobile auto glass replacement, paintless dent repair, wheel and rim repair, keys and fobs, fleet battery and telematics service for commercial fleets.",
       "url": "https://www.goprofinish.com/",
-      "logo": "https://www.goprofinish.com/brand_assets/ProFinishEliteLogo_New.png",
+      "logo": "https://www.goprofinish.com/brand_assets/profinish-mark-512.png",
       "image": "https://www.goprofinish.com/brand_assets/hero.jpg",
       "telephone": "+1-830-356-3456",
       "email": "profi@goprofinish.com",
@@ -131,8 +158,7 @@
     <nav class="fixed w-full z-40 top-0 pt-4 lg:pt-6 px-4 lg:px-6" aria-label="Main">
         <div class="max-w-7xl mx-auto glass-panel rounded-full pl-4 pr-3 lg:px-6 py-3 lg:py-4 flex justify-between items-center gap-4">
             <a href="/" class="flex items-center gap-3 min-w-0">
-                <img src="brand_assets/ProFinishEliteLogo_New.png" alt="ProFinish Elite Glass &amp; Keys home" width="40" height="40" class="h-9 lg:h-10 w-auto rounded-md">
-                <span class="font-bold text-lg xl:text-xl tracking-tight hidden xl:block whitespace-nowrap">ProFinish Elite Glass &amp; Keys<span class="text-orange-500">.</span></span>
+                <img src="brand_assets/profinish-logo-light.svg" alt="ProFinish Elite Glass &amp; Keys home" width="180" height="48" class="h-10 lg:h-12 w-auto">
             </a>
 
             <div class="hidden lg:flex gap-7 text-sm font-medium text-slate-300 items-center">
@@ -161,15 +187,6 @@
                         <a href="blog.html" class="px-4 py-2 hover:bg-white/10 hover:text-orange-500 rounded-lg">Blog</a>
                         <a href="careers.html" class="px-4 py-2 hover:bg-white/10 hover:text-orange-500 rounded-lg">Careers</a>
                         <a href="faq.html" class="px-4 py-2 hover:bg-white/10 hover:text-orange-500 rounded-lg">FAQ</a>
-                    </div>
-                </div>
-                <div class="pf-dd relative py-2">
-                    <button type="button" class="pf-dd-btn hover:text-white flex items-center gap-1" aria-haspopup="true" aria-expanded="false">
-                        Partners <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div class="pf-dd-menu absolute top-full left-0 w-52 bg-navy-800/95 backdrop-blur-xl border border-navy-600 rounded-xl flex flex-col p-2 shadow-xl">
-                        <a href="https://profinish-admin.vercel.app/auth/login" target="_blank" rel="noopener" class="px-4 py-2 hover:bg-white/10 hover:text-orange-500 rounded-lg">Partner login</a>
-                        <a href="mailto:profi@goprofinish.com?subject=Join%20the%20ProFinish%20partner%20network" class="px-4 py-2 hover:bg-white/10 hover:text-orange-500 rounded-lg">Join the network</a>
                     </div>
                 </div>
                 <a href="contact.html" class="hover:text-white">Contact</a>
@@ -223,7 +240,6 @@
                     <a href="careers.html">Careers</a>
                     <a href="faq.html">FAQ</a>
                     <a href="contact.html">Contact</a>
-                    <a href="https://profinish-admin.vercel.app/auth/login" target="_blank" rel="noopener">Partner login</a>
                 </div>
             </div>
             <address class="not-italic text-slate-400 text-sm leading-relaxed">
@@ -242,371 +258,384 @@
     </div>
     <!-- PF:HEADER:END -->
 
-    
-
-    <!-- Hero Section -->
     <span id="main"></span>
-    <section class="relative pt-48 pb-20 px-6 min-h-[90vh] flex items-center">
-        <!-- Abstract Brand Orbs -->
-        <div class="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-orange-500/20 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-navy-700/40 rounded-full blur-[150px] pointer-events-none"></div>
 
-        <div class="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-16 items-center relative z-10">
-            <div class="max-w-2xl">
-                <a href="fleet-battery-program.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-orange-400 text-sm font-bold mb-6 fade-in hover:text-orange-300">
-                    <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse" aria-hidden="true"></span>
-                    New: subscription battery maintenance for fleets
-                </a>
-                <h1 class="text-5xl md:text-7xl font-black leading-[1.1] tracking-tight mb-6 fade-in delay-100">
-                    Protect fleet uptime.
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-300">Eliminate repair delays.</span>
+    <!-- Hero -->
+    <section class="relative pt-36 lg:pt-44 pb-16 lg:pb-24 px-6 overflow-hidden">
+        <div class="pf-grid absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+        <div class="absolute -top-24 right-[8%] w-[520px] h-[520px] bg-orange-500/10 rounded-full blur-[130px] pointer-events-none" aria-hidden="true"></div>
+
+        <div class="max-w-7xl mx-auto w-full grid lg:grid-cols-[1.05fr_.95fr] gap-12 lg:gap-10 items-center relative z-10">
+            <div>
+                <h1 class="pf-display text-[3.4rem] sm:text-7xl xl:text-[5.75rem] mb-7 pf-rise" style="--i:0">
+                    Protect fleet uptime. Eliminate repair delays.
                 </h1>
-                <p class="text-lg md:text-xl text-slate-400 mb-10 leading-relaxed fade-in delay-200">
-                    From shattered glass and scuffed wheels to lost keys and body damage. ProFinish Elite Glass & Keys delivers seamless, expert repairs—done right, every time.
+                <p class="text-lg md:text-xl text-slate-300 mb-9 leading-relaxed max-w-xl pf-rise" style="--i:1">
+                    Mobile glass, keys, batteries, dent and wheel repair for commercial fleets in San Antonio and Austin. We do the work at your yard, so your vehicles stay where they earn.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 fade-in delay-200">
-                    <a href="#quote" class="bg-orange-500 text-white px-8 py-4 rounded-full font-bold text-center hover:bg-orange-600 transition-colors shadow-[0_0_20px_rgba(242,101,34,0.35)]">
-                        Get an estimate
+                <div class="flex flex-col sm:flex-row gap-4 mb-10 pf-rise" style="--i:2">
+                    <a href="#quote" class="pf-btn bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-bold text-center shadow-[0_10px_30px_-8px_rgba(242,101,34,0.55)]">
+                        Request a fleet quote
                     </a>
-                    <a href="tel:+18303563456" class="glass-panel text-white px-8 py-4 rounded-full font-bold text-center hover:bg-navy-800 transition-colors border border-navy-700">
+                    <a href="tel:+18303563456" class="pf-btn text-white px-8 py-4 rounded-full font-bold text-center border border-navy-600 hover:border-slate-400 bg-navy-800/60">
                         Call (830) 356-3456
                     </a>
                 </div>
+                <ul class="grid sm:grid-cols-3 gap-x-8 gap-y-4 text-sm text-slate-300 border-t border-navy-700 pt-6 max-w-2xl pf-rise" style="--i:3">
+                    <li><span class="block text-white font-bold text-base">Mobile only</span>We come to your yard or job site</li>
+                    <li><span class="block text-white font-bold text-base">Weekdays and weekends</span>Saturdays and Sundays included</li>
+                    <li><span class="block text-white font-bold text-base">Free quotes</span>For one vehicle or a whole list</li>
+                </ul>
             </div>
-            
-            <!-- Hero Visual (Clean Professional Mockup) -->
-            <div class="relative lg:h-[500px] w-full fade-in delay-300 hidden lg:block">
-                <div class="absolute right-0 top-1/2 -translate-y-1/2 w-full max-w-md h-[400px] rounded-3xl shadow-2xl overflow-hidden group border border-navy-700">
-                    <img src="brand_assets/hero.jpg" alt="Commercial Fleet Operations" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/40 to-transparent"></div>
-                    
-                    <div class="absolute bottom-8 left-8 right-8">
-                        <div class="glass-panel rounded-2xl p-5 flex items-center gap-4 border border-white/10 shadow-xl backdrop-blur-md">
-                            <div class="bg-green-500/20 p-3 rounded-xl text-green-400 flex-shrink-0">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div>
-                                <p class="text-white font-bold text-base leading-tight">Fleet Uptime Program</p>
-                                <p class="text-slate-400 text-sm mt-0.5">Battery + Alternator Monitoring</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+            <!-- Service corridor map -->
+            <figure class="relative">
+                <svg viewBox="20 36 510 346" class="w-full h-auto" role="img" aria-labelledby="map-title map-desc">
+                    <title id="map-title">ProFinish service area in Texas</title>
+                    <desc id="map-desc">A route map from Eagle Pass through San Antonio, Schertz, New Braunfels, San Marcos and Buda to Austin, with a branch to Seguin. San Antonio is marked as the base.</desc>
+
+                    <!-- Route: Eagle Pass to San Antonio, then up I-35 to Austin -->
+                    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path class="pf-route" style="--i:1" d="M368 214 L403 188 L427 166 L455 135 L471 101 L486 69" stroke="#F26522" stroke-width="5"/>
+                        <path class="pf-route" style="--i:3" d="M368 214 C310 262 190 318 52 334" stroke="#F26522" stroke-width="5" stroke-dasharray="1 11"/>
+                        <path class="pf-route" style="--i:2" d="M403 188 L452 204" stroke="#F26522" stroke-width="3" opacity=".7"/>
+                    </g>
+
+                    <!-- Stops -->
+                    <g fill="#050A14" stroke="#F26522" stroke-width="3">
+                        <circle class="pf-stop" style="--i:1" cx="403" cy="188" r="5"/>
+                        <circle class="pf-stop" style="--i:2" cx="427" cy="166" r="5"/>
+                        <circle class="pf-stop" style="--i:2" cx="452" cy="204" r="5"/>
+                        <circle class="pf-stop" style="--i:3" cx="455" cy="135" r="5"/>
+                        <circle class="pf-stop" style="--i:4" cx="471" cy="101" r="5"/>
+                    </g>
+                    <circle class="pf-base-pulse" cx="368" cy="214" r="9" fill="#F26522"/>
+                    <circle class="pf-stop" style="--i:0" cx="368" cy="214" r="10" fill="#F26522"/>
+                    <circle class="pf-stop" style="--i:5" cx="486" cy="69" r="9" fill="#F26522"/>
+                    <circle class="pf-stop" style="--i:5" cx="52" cy="334" r="8" fill="#F26522"/>
+
+                    <!-- Labels -->
+                    <g font-family="Outfit, sans-serif" fill="#A1B0C8" font-size="14">
+                        <text class="pf-label" style="--i:1" x="390" y="206" text-anchor="start" dy="14">Schertz</text>
+                        <text class="pf-label" style="--i:2" x="440" y="174">New Braunfels</text>
+                        <text class="pf-label" style="--i:2" x="464" y="209">Seguin</text>
+                        <text class="pf-label" style="--i:3" x="442" y="131" text-anchor="end">San Marcos</text>
+                        <text class="pf-label" style="--i:4" x="458" y="98" text-anchor="end">Buda</text>
+                    </g>
+                    <g font-family="'Big Shoulders Display', Outfit, sans-serif" font-weight="800" fill="#ffffff">
+                        <text class="pf-label" style="--i:0" x="348" y="204" text-anchor="end" font-size="32">San Antonio</text>
+                        <text class="pf-label" style="--i:0" x="348" y="172" text-anchor="end" font-size="13" font-family="Outfit, sans-serif" font-weight="500" fill="#F26522">Base, 500 Navarro St</text>
+                        <text class="pf-label" style="--i:5" x="470" y="64" text-anchor="end" font-size="32">Austin</text>
+                        <text class="pf-label" style="--i:5" x="40" y="368" font-size="28">Eagle Pass</text>
+                    </g>
+                </svg>
+                <figcaption class="text-sm text-slate-400 mt-2 lg:text-right pf-rise" style="--i:6">
+                    Service along I-35 from San Antonio to Austin, and in Eagle Pass. Also serving California and Washington.
+                </figcaption>
+            </figure>
         </div>
     </section>
 
-    <!-- Fleet partners -->
-    <section class="py-12 border-y border-navy-700/50 bg-navy-900/80 relative z-10" aria-labelledby="partners-heading">
-        <div class="max-w-7xl mx-auto px-6 fade-in delay-300">
-            <h2 id="partners-heading" class="text-center text-sm font-medium text-slate-400 mb-8">Approved service provider for leading fleet management companies</h2>
-            <ul class="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 md:gap-x-16">
-                <li><img src="brand_assets/logo-element.png" alt="Element Fleet Management" class="h-12 md:h-14 w-auto max-w-[140px] md:max-w-[170px] object-contain opacity-70 hover:opacity-100 transition-opacity duration-300" loading="lazy"></li>
-                <li><img src="brand_assets/logo-holman.png" alt="Holman" class="h-12 md:h-14 w-auto max-w-[140px] md:max-w-[170px] object-contain opacity-70 hover:opacity-100 transition-opacity duration-300" loading="lazy"></li>
-                <li><img src="brand_assets/logo-wheels.png" alt="Wheels" class="h-12 md:h-14 w-auto max-w-[140px] md:max-w-[170px] object-contain opacity-70 hover:opacity-100 transition-opacity duration-300" loading="lazy"></li>
-                <li><img src="brand_assets/logo-merchants.png" alt="Merchants Fleet" class="h-12 md:h-14 w-auto max-w-[140px] md:max-w-[170px] object-contain opacity-70 hover:opacity-100 transition-opacity duration-300" loading="lazy"></li>
-                <li><img src="brand_assets/logo-mike-albert.png" alt="Mike Albert Fleet Solutions" class="h-12 md:h-14 w-auto max-w-[140px] md:max-w-[170px] object-contain opacity-70 hover:opacity-100 transition-opacity duration-300" loading="lazy"></li>
-                <li><img src="brand_assets/logo-fleetio.png" alt="Fleetio" class="h-12 md:h-14 w-auto max-w-[140px] md:max-w-[170px] object-contain opacity-70 hover:opacity-100 transition-opacity duration-300" loading="lazy"></li>
+    <!-- Fleet management approvals -->
+    <section class="py-12 border-y border-navy-700/60 bg-navy-800/50 relative z-10" aria-labelledby="partners-heading">
+        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-[minmax(0,22rem)_1fr] gap-8 lg:gap-14 items-center">
+            <div>
+                <h2 id="partners-heading" class="pf-display text-3xl md:text-4xl mb-3">Already approved where your fleet is managed.</h2>
+                <p class="text-slate-400 text-sm leading-relaxed">ProFinish is an approved service provider for these fleet management companies. If one of them manages your vehicles, you can use us without setting up a new vendor.</p>
+            </div>
+            <ul class="grid grid-cols-2 sm:grid-cols-3 gap-px bg-navy-700/60 rounded-2xl overflow-hidden border border-navy-700/60">
+                <li class="bg-navy-900 flex items-center justify-center p-6 h-24"><img src="brand_assets/logo-element.png" alt="Element Fleet Management" class="h-10 md:h-12 w-auto max-w-[150px] object-contain opacity-90" loading="lazy"></li>
+                <li class="bg-navy-900 flex items-center justify-center p-6 h-24"><img src="brand_assets/logo-holman.png" alt="Holman" class="h-10 md:h-12 w-auto max-w-[150px] object-contain opacity-90" loading="lazy"></li>
+                <li class="bg-navy-900 flex items-center justify-center p-6 h-24"><img src="brand_assets/logo-wheels.png" alt="Wheels" class="h-10 md:h-12 w-auto max-w-[150px] object-contain opacity-90" loading="lazy"></li>
+                <li class="bg-navy-900 flex items-center justify-center p-6 h-24"><img src="brand_assets/logo-merchants.png" alt="Merchants Fleet" class="h-10 md:h-12 w-auto max-w-[150px] object-contain opacity-90" loading="lazy"></li>
+                <li class="bg-navy-900 flex items-center justify-center p-6 h-24"><img src="brand_assets/logo-mike-albert.png" alt="Mike Albert Fleet Solutions" class="h-10 md:h-12 w-auto max-w-[150px] object-contain opacity-90" loading="lazy"></li>
+                <li class="bg-navy-900 flex items-center justify-center p-6 h-24"><img src="brand_assets/logo-fleetio.png" alt="Fleetio" class="h-10 md:h-12 w-auto max-w-[150px] object-contain opacity-90" loading="lazy"></li>
+                <li class="bg-navy-900 col-span-full flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 px-6 py-5 text-center">
+                    <span class="pf-display text-2xl">GSA approved</span>
+                    <span class="text-slate-400 text-sm">Approved vendor for U.S. General Services Administration fleet vehicles</span>
+                </li>
             </ul>
         </div>
     </section>
 
-    <!-- Asymmetrical Bento Services Section -->
-    <section id="services" class="py-24 px-6 bg-navy-900/40 border-y border-navy-700/50">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="text-3xl md:text-5xl font-black mb-4">Precision Engineering</h2>
-            <p class="text-slate-400 max-w-xl mb-12 leading-relaxed">We combine elite craftsmanship with modern technology to get your vehicle back on the road safely and flawlessly.</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[250px]">
-                
-                <!-- Large Feature (Tall) -->
-                <div class="md:row-span-2 md:col-span-1 glass-panel rounded-3xl p-8 bento-hover flex flex-col bg-gradient-to-b from-navy-800 to-navy-900 relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-20 transition-opacity duration-500">
-                        <svg class="w-32 h-32 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    </div>
-                    <div class="bg-orange-500/10 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border border-orange-500/20 text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" /></svg>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3">Paintless Dent Repair</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-8">Restore your vehicle's factory finish without repainting. Our PDR specialists massage dents out from the inside, preserving your car's value.</p>
-                    <div class="mt-auto">
-                        <ul class="space-y-3 text-sm font-medium text-slate-300">
-                            <li class="flex items-center gap-2"><span class="text-orange-500">■</span> Factory paint preserved</li>
-                            <li class="flex items-center gap-2"><span class="text-orange-500">■</span> Same-day turnaround</li>
-                        </ul>
-                    </div>
+    <!-- Services -->
+    <section id="services" class="py-20 lg:py-28 px-6">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-[minmax(0,26rem)_1fr] gap-12 lg:gap-16">
+            <div class="lg:sticky lg:top-32 self-start">
+                <h2 class="pf-display text-5xl md:text-6xl mb-5">What we fix at your yard.</h2>
+                <p class="text-slate-400 leading-relaxed mb-8 max-w-md">The repairs that park a vehicle most often are small ones: a cracked windshield, a lost key, a dead battery. One call covers all of them.</p>
+                <div class="relative rounded-2xl overflow-hidden border border-navy-700 aspect-[4/3] hidden lg:block">
+                    <img src="brand_assets/shop-facility.jpg" alt="Technician replacing the windshield on a fleet cargo van" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy-900/70 to-transparent"></div>
                 </div>
-
-                <!-- Wide Feature 1 -->
-                <div class="md:col-span-2 glass-panel rounded-3xl p-8 bento-hover flex flex-col sm:flex-row gap-8 items-center bg-navy-800/40 relative overflow-hidden group">
-                    <div class="relative z-10 flex-1">
-                        <div class="bg-navy-700 w-12 h-12 rounded-xl flex items-center justify-center mb-4 border border-navy-600">
-                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Auto Glass Replacement</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">From simple rock chips to full windshield replacements, our ADAS-certified technicians ensure your glass and safety sensors are perfectly calibrated.</p>
-                    </div>
-                    
-                    <!-- HUD Calibration Visual -->
-                    <div class="relative z-10 w-full sm:w-56 h-40 bg-navy-900 rounded-2xl border border-navy-700 flex flex-col items-center justify-center overflow-hidden">
-                         <img src="brand_assets/glass.jpg" alt="Windshield Interior" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500">
-                    </div>
-                </div>
-
-                <!-- Wide Feature 2 -->
-                <div class="md:col-span-2 glass-panel rounded-3xl p-8 bento-hover flex flex-col sm:flex-row-reverse gap-8 items-center bg-navy-800/40 border-orange-500/10 relative overflow-hidden group">
-                    <div class="relative z-10 flex-1">
-                        <div class="bg-navy-700 w-12 h-12 rounded-xl flex items-center justify-center mb-4 border border-navy-600">
-                            <svg class="w-6 h-6 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Wheel & Rim Repair</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">Curb rash, bends, or cracks? We utilize CNC machining and exact color-matching technology to make your damaged alloys look brand new.</p>
-                    </div>
-                    
-                    <div class="relative z-10 w-full sm:w-56 h-40 bg-navy-900 rounded-2xl border border-navy-700 flex items-center justify-center overflow-hidden">
-                        <img src="brand_assets/wheel.jpg" alt="Alloy Wheel Repair" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700">
-                    </div>
-                </div>
-
-                <!-- Wide Feature 3 -->
-                <div class="md:col-span-2 glass-panel rounded-3xl p-8 bento-hover flex flex-col sm:flex-row gap-8 items-center bg-navy-800/40 relative overflow-hidden group">
-                    <div class="relative z-10 flex-1">
-                        <div class="bg-navy-700 w-12 h-12 rounded-xl flex items-center justify-center mb-4 border border-navy-600">
-                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m14-6h2m-2 6h2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Telematics & Fleet Tech</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed">Keep your fleet connected and safe. We install and service Geotabs, Netradyne cameras, backup cameras, and Always-On displays.</p>
-                    </div>
-                    <div class="relative z-10 w-full sm:w-56 h-40 bg-navy-900 rounded-2xl border border-navy-700 flex items-center justify-center overflow-hidden">
-                        <img src="brand_assets/telematics.jpg" alt="Dashboard Tech" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700">
-                    </div>
-                </div>
-
-                <!-- Square Feature -->
-                <div class="md:col-span-1 glass-panel rounded-3xl p-8 bento-hover flex flex-col bg-navy-800/40 relative overflow-hidden group">
-                    <div class="bg-navy-700 w-12 h-12 rounded-xl flex items-center justify-center mb-4 border border-navy-600">
-                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2">Keys & Fobs</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mt-2">Lost a key or need a spare? We coordinate fast, secure replacement and programming solutions for modern key fobs and transponder keys through licensed service partners.</p>
-                </div>
-
-                <!-- Full Width Feature -->
-                <div class="md:col-span-3 glass-panel rounded-3xl p-8 bento-hover flex flex-col sm:flex-row gap-8 items-center bg-gradient-to-r from-navy-800 to-navy-900 border border-navy-600 relative overflow-hidden group">
-                    <div class="relative z-10 flex-1 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-                        <div class="bg-orange-500/10 w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 border border-orange-500/20">
-                            <svg class="w-8 h-8 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-2">Subscription Battery Maintenance</h3>
-                            <p class="text-slate-400 text-sm leading-relaxed max-w-3xl">
-                                Keep your fleet ahead of dead batteries and charging system failures with proactive monthly battery testing, alternator diagnostics, condition reporting, and priority replacement service. Built for commercial vehicles that cannot afford downtime.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+
+            <ul class="border-t border-navy-700">
+                <li><a href="auto-glass-repair.html" class="pf-row grid sm:grid-cols-[13rem_1fr_auto] gap-x-8 gap-y-2 items-baseline py-7 px-3 -mx-3 border-b border-navy-700 rounded-lg">
+                    <h3 class="pf-display text-3xl">Auto glass</h3>
+                    <p class="text-slate-400 leading-relaxed">Chip repair and windshield replacement on site, with ADAS recalibration for vehicles whose cameras and sensors need it.</p>
+                    <span class="pf-row-go text-sm font-bold text-slate-300 whitespace-nowrap">See glass service</span>
+                </a></li>
+                <li><a href="keys-fobs.html" class="pf-row grid sm:grid-cols-[13rem_1fr_auto] gap-x-8 gap-y-2 items-baseline py-7 px-3 -mx-3 border-b border-navy-700 rounded-lg">
+                    <h3 class="pf-display text-3xl">Keys and fobs</h3>
+                    <p class="text-slate-400 leading-relaxed">Replacement keys, fobs and programming through licensed service partners, so a lost key doesn't take a vehicle off the route.</p>
+                    <span class="pf-row-go text-sm font-bold text-slate-300 whitespace-nowrap">See key service</span>
+                </a></li>
+                <li><a href="fleet-battery-program.html" class="pf-row grid sm:grid-cols-[13rem_1fr_auto] gap-x-8 gap-y-2 items-baseline py-7 px-3 -mx-3 border-b border-navy-700 rounded-lg">
+                    <h3 class="pf-display text-3xl">Batteries</h3>
+                    <p class="text-slate-400 leading-relaxed">Testing and replacement at your yard, or a monthly program that finds weak batteries and charging problems before a no-start.</p>
+                    <span class="pf-row-go text-sm font-bold text-slate-300 whitespace-nowrap">See battery program</span>
+                </a></li>
+                <li><a href="paintless-dent-repair.html" class="pf-row grid sm:grid-cols-[13rem_1fr_auto] gap-x-8 gap-y-2 items-baseline py-7 px-3 -mx-3 border-b border-navy-700 rounded-lg">
+                    <h3 class="pf-display text-3xl">Paintless dent repair</h3>
+                    <p class="text-slate-400 leading-relaxed">Door dings and creases worked out from behind the panel. No repainting, the factory finish stays, and most jobs finish the same day.</p>
+                    <span class="pf-row-go text-sm font-bold text-slate-300 whitespace-nowrap">See dent repair</span>
+                </a></li>
+                <li><a href="wheel-rim-repair.html" class="pf-row grid sm:grid-cols-[13rem_1fr_auto] gap-x-8 gap-y-2 items-baseline py-7 px-3 -mx-3 border-b border-navy-700 rounded-lg">
+                    <h3 class="pf-display text-3xl">Wheels and rims</h3>
+                    <p class="text-slate-400 leading-relaxed">Curb rash, bends and cracks repaired and color-matched instead of replacing the wheel.</p>
+                    <span class="pf-row-go text-sm font-bold text-slate-300 whitespace-nowrap">See wheel repair</span>
+                </a></li>
+                <li><a href="fleet-tech.html" class="pf-row grid sm:grid-cols-[13rem_1fr_auto] gap-x-8 gap-y-2 items-baseline py-7 px-3 -mx-3 border-b border-navy-700 rounded-lg">
+                    <h3 class="pf-display text-3xl">Fleet tech</h3>
+                    <p class="text-slate-400 leading-relaxed">Install and service for Geotab devices, Netradyne cameras, backup cameras and in-cab displays.</p>
+                    <span class="pf-row-go text-sm font-bold text-slate-300 whitespace-nowrap">See fleet tech</span>
+                </a></li>
+            </ul>
         </div>
     </section>
 
-
-    <!-- ProFinish Promo Video Section -->
-    <section class="py-20 px-6 relative z-10 bg-navy-900/60">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-10">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel text-orange-500 text-xs font-bold uppercase tracking-wider mb-4">
-                    <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-                    See Us In Action
-                </div>
-                <h2 class="text-3xl md:text-5xl font-black mb-4">
-                    ProFinish Elite<span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-300"> at Work</span>
-                </h2>
-                <p class="text-slate-400 max-w-xl mx-auto leading-relaxed">From windshields to telematics — watch how our team keeps commercial fleets moving without costly downtime.</p>
+    <!-- Battery program -->
+    <section class="px-6" aria-labelledby="battery-heading">
+        <div class="max-w-7xl mx-auto rounded-[2rem] bg-orange-500 text-navy-900 overflow-hidden grid lg:grid-cols-[1.1fr_.9fr]">
+            <div class="p-8 md:p-14">
+                <p class="font-bold mb-4">Subscription battery maintenance</p>
+                <h2 id="battery-heading" class="pf-display text-5xl md:text-7xl mb-6">Find the weak battery before your driver does.</h2>
+                <p class="text-lg leading-relaxed max-w-xl mb-8 text-navy-900/85">A dead battery at 5 a.m. costs a route. On the monthly program we test every vehicle, report its condition, and replace a failing battery before it strands someone.</p>
+                <a href="fleet-battery-program.html" class="pf-btn inline-block bg-navy-900 hover:bg-navy-700 text-white px-8 py-4 rounded-full font-bold">See how the program works</a>
             </div>
-            <div class="relative rounded-3xl overflow-hidden border border-navy-600 glass-panel shadow-2xl shadow-orange-500/10 group">
-                <video controls playsinline preload="none" poster="brand_assets/hero.jpg"
-                    class="w-full aspect-video object-cover">
+            <ul class="bg-navy-900/10 p-8 md:p-14 flex flex-col justify-center divide-y divide-navy-900/20 text-lg font-bold">
+                <li class="py-4">Monthly battery testing on every vehicle</li>
+                <li class="py-4">Alternator and charging system diagnostics</li>
+                <li class="py-4">A condition report for each vehicle</li>
+                <li class="py-4">Priority replacement when one is failing</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="py-20 lg:py-28 px-6" aria-labelledby="steps-heading">
+        <div class="max-w-7xl mx-auto">
+            <h2 id="steps-heading" class="pf-display text-5xl md:text-6xl mb-12 max-w-2xl">From a damaged vehicle to back on the route.</h2>
+            <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
+                <li class="border-t-2 border-orange-500 pt-5">
+                    <span class="pf-display text-5xl text-orange-500 block mb-3">1</span>
+                    <h3 class="font-bold text-xl mb-2">Send the details</h3>
+                    <p class="text-slate-400 leading-relaxed">Use the form below or call. One vehicle or a whole list, with photos if you have them.</p>
+                </li>
+                <li class="border-t-2 border-navy-600 pt-5">
+                    <span class="pf-display text-5xl text-orange-500 block mb-3">2</span>
+                    <h3 class="font-bold text-xl mb-2">Get your quote</h3>
+                    <p class="text-slate-400 leading-relaxed">Quotes are free. Photos and a VIN help us price it right the first time.</p>
+                </li>
+                <li class="border-t-2 border-navy-600 pt-5">
+                    <span class="pf-display text-5xl text-orange-500 block mb-3">3</span>
+                    <h3 class="font-bold text-xl mb-2">We come to you</h3>
+                    <p class="text-slate-400 leading-relaxed">A technician does the work at your yard or job site, on a weekday or a weekend.</p>
+                </li>
+                <li class="border-t-2 border-navy-600 pt-5">
+                    <span class="pf-display text-5xl text-orange-500 block mb-3">4</span>
+                    <h3 class="font-bold text-xl mb-2">Bill it your way</h3>
+                    <p class="text-slate-400 leading-relaxed">Through your fleet management company where we're an approved provider, or directly to you.</p>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- Promo video -->
+    <section class="pb-20 lg:pb-28 px-6 relative z-10" aria-labelledby="video-heading">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-[minmax(0,22rem)_1fr] gap-10 lg:gap-16 items-center">
+            <div>
+                <h2 id="video-heading" class="pf-display text-5xl md:text-6xl mb-5">See the work.</h2>
+                <p class="text-slate-400 leading-relaxed">A short look at how ProFinish handles glass, dents and fleet tech for commercial vehicles.</p>
+            </div>
+            <div class="relative rounded-3xl overflow-hidden border border-navy-600 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]">
+                <video controls playsinline preload="none" poster="brand_assets/video-thumb.jpg" class="w-full aspect-video object-cover">
                     <source src="brand_assets/ProFinish_Promo_Web.mp4" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
-                <!-- Orange glow accent -->
-                <div class="absolute inset-0 rounded-3xl pointer-events-none ring-1 ring-inset ring-orange-500/10"></div>
             </div>
-            <p class="text-center text-slate-500 text-sm mt-6">Professional auto glass, dent repair, and fleet services — done right, every time.</p>
         </div>
     </section>
 
-    <!-- Modern Application Form Section with Video -->
-    <section id="quote" class="py-24 px-6 relative max-w-[90rem] mx-auto w-full grid lg:grid-cols-2 gap-8 lg:gap-16 items-start z-10">
-        
-        <!-- Left Side: The Form -->
-        <div class="w-full max-w-2xl mx-auto lg:mx-0 order-2 lg:order-1">
-            <div class="mb-10 text-center lg:text-left">
-                <h2 class="text-3xl md:text-5xl font-black mb-4">Start Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-300">Quote</span></h2>
-                <p class="text-slate-400">Provide your details and upload damage photos for an expedited estimate.</p>
+    <!-- Quote form -->
+    <section id="quote" class="py-20 lg:py-24 px-6 relative z-10 bg-navy-800/50 border-t border-navy-700/60 scroll-mt-24">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-[minmax(0,24rem)_1fr] gap-12 lg:gap-16 items-start">
+
+            <div class="lg:sticky lg:top-32">
+                <h2 class="pf-display text-5xl md:text-6xl mb-5">Request a fleet quote.</h2>
+                <p class="text-slate-300 leading-relaxed mb-8">Tell us about the vehicle, or the fleet, and what it needs. Quotes are free.</p>
+                <div class="relative rounded-2xl overflow-hidden border border-navy-600 aspect-[4/3] mb-8 hidden lg:block">
+                    <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover" aria-hidden="true">
+                        <source src="brand_assets/Flow_delpmaspu_.mp4" type="video/mp4">
+                    </video>
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent"></div>
+                    <p class="absolute bottom-5 left-5 right-5 font-bold text-lg">Your vehicles stay at your yard. We bring the repair to them.</p>
+                </div>
+                <dl class="space-y-4 text-sm">
+                    <div>
+                        <dt class="text-slate-400 mb-0.5">Rather talk it through?</dt>
+                        <dd><a href="tel:+18303563456" class="text-white font-bold text-xl hover:text-orange-400">(830) 356-3456</a></dd>
+                    </div>
+                    <div>
+                        <dt class="text-slate-400 mb-0.5">After hours</dt>
+                        <dd><a href="tel:+13412536365" class="text-white font-bold text-xl hover:text-orange-400">(341) 253-6365</a></dd>
+                    </div>
+                </dl>
             </div>
 
-            <div class="glass-panel rounded-[2rem] p-6 md:p-10 relative overflow-hidden border border-navy-600">
-
-            <form id="quote-form" class="relative z-10 space-y-10">
+            <div class="rounded-[2rem] p-6 md:p-10 border border-navy-600 bg-navy-900">
+            <form id="quote-form" class="space-y-10">
                 <div class="pf-hp" aria-hidden="true"><label>Leave this field empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
-                <!-- Customer Info -->
-                <div>
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-3">
-                        <span class="w-6 h-px bg-slate-600"></span> Contact Details
-                    </h3>
+
+                <fieldset>
+                    <legend class="font-bold text-lg mb-4">Who to contact</legend>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Full Name</label>
-                            <input type="text" name="name" required autocomplete="name" maxlength="120" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3.5 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="John Doe">
+                            <label class="pf-label-text" for="qf-name">Full name</label>
+                            <input id="qf-name" type="text" name="name" required autocomplete="name" maxlength="120" class="pf-field" placeholder="Jordan Reyes">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Phone Number</label>
-                            <input type="tel" name="phone" required inputmode="tel" autocomplete="tel" minlength="10" maxlength="20" title="Phone number with area code" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3.5 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="(210) 555-0123">
+                            <label class="pf-label-text" for="qf-company">Company <span class="text-slate-500">(optional)</span></label>
+                            <input id="qf-company" type="text" name="company" autocomplete="organization" maxlength="120" class="pf-field" placeholder="Reyes Plumbing">
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Email Address</label>
-                            <input type="email" name="email" required autocomplete="email" maxlength="200" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3.5 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="john@example.com">
+                        <div>
+                            <label class="pf-label-text" for="qf-phone">Phone number</label>
+                            <input id="qf-phone" type="tel" name="phone" required inputmode="tel" autocomplete="tel" minlength="10" maxlength="20" title="Phone number with area code" class="pf-field" placeholder="(210) 555-0123">
+                        </div>
+                        <div>
+                            <label class="pf-label-text" for="qf-email">Email address</label>
+                            <input id="qf-email" type="email" name="email" required autocomplete="email" maxlength="200" class="pf-field" placeholder="jordan@reyesplumbing.com">
                         </div>
                     </div>
-                </div>
+                </fieldset>
 
-                <!-- Vehicle Info -->
-                <div>
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-3">
-                        <span class="w-6 h-px bg-slate-600"></span> Vehicle Specs
-                    </h3>
-                    
-                    <!-- Visual Fleet Selection Cards -->
+                <fieldset>
+                    <legend class="font-bold text-lg mb-4">Your fleet</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                        <div>
+                            <label class="pf-label-text" for="qf-fleet-size">Vehicles in your fleet</label>
+                            <select id="qf-fleet-size" name="fleet_size" class="pf-field appearance-none cursor-pointer">
+                                <option value="">Choose one</option>
+                                <option>1 to 5</option>
+                                <option>6 to 20</option>
+                                <option>21 to 50</option>
+                                <option>51 to 200</option>
+                                <option>More than 200</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="pf-label-text" for="qf-units">Vehicles that need service now</label>
+                            <input id="qf-units" type="number" name="units_needing_service" min="1" max="9999" inputmode="numeric" class="pf-field" placeholder="1">
+                        </div>
+                    </div>
+
+                    <p class="pf-label-text">Vehicle type</p>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <!-- Transit -->
-                        <label class="cursor-pointer relative overflow-hidden rounded-2xl border border-navy-700 transition-all h-40 group">
+                        <label class="cursor-pointer relative overflow-hidden rounded-2xl border border-navy-700 h-36 block">
                             <input type="radio" name="fleet_type" value="Light Duty (Transit/ProMaster)" class="peer sr-only" required>
-                            <img src="brand_assets/van.jpg" alt="Light Duty Van" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                            <div class="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/40 to-transparent peer-checked:bg-orange-500/20 transition-all"></div>
-                            <div class="absolute inset-0 border-2 border-transparent peer-checked:border-orange-500 rounded-2xl transition-all shadow-[inset_0_0_20px_rgba(242,101,34,0)] peer-checked:shadow-[inset_0_0_20px_rgba(242,101,34,0.3)]"></div>
-                            <div class="absolute bottom-0 left-0 w-full p-4 z-10">
-                                <div class="text-white font-bold text-lg mb-1 group-hover:text-orange-400 peer-checked:text-orange-400 transition-colors">Light Duty Vans</div>
+                            <img src="brand_assets/van.jpg" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+                            <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/75 to-navy-900/10"></div>
+                            <div class="absolute inset-0 border-2 border-transparent peer-checked:border-orange-500 peer-focus-visible:border-white rounded-2xl"></div>
+                            <div class="absolute bottom-0 left-0 w-full p-4">
+                                <div class="text-white font-bold text-lg">Light duty vans</div>
                                 <div class="text-slate-300 text-xs">Transit, ProMaster</div>
                             </div>
                         </label>
-                        <!-- F250 -->
-                        <label class="cursor-pointer relative overflow-hidden rounded-2xl border border-navy-700 transition-all h-40 group">
+                        <label class="cursor-pointer relative overflow-hidden rounded-2xl border border-navy-700 h-36 block">
                             <input type="radio" name="fleet_type" value="Medium Duty (F-250/2500)" class="peer sr-only" required>
-                            <img src="brand_assets/f250.jpg.png" alt="Medium Duty Truck" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                            <div class="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/40 to-transparent peer-checked:bg-orange-500/20 transition-all"></div>
-                            <div class="absolute inset-0 border-2 border-transparent peer-checked:border-orange-500 rounded-2xl transition-all shadow-[inset_0_0_20px_rgba(242,101,34,0)] peer-checked:shadow-[inset_0_0_20px_rgba(242,101,34,0.3)]"></div>
-                            <div class="absolute bottom-0 left-0 w-full p-4 z-10">
-                                <div class="text-white font-bold text-lg mb-1 group-hover:text-orange-400 peer-checked:text-orange-400 transition-colors">Medium Duty</div>
-                                <div class="text-slate-300 text-xs">F-250, Dodge 2500</div>
+                            <img src="brand_assets/f250.jpg" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+                            <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/75 to-navy-900/10"></div>
+                            <div class="absolute inset-0 border-2 border-transparent peer-checked:border-orange-500 peer-focus-visible:border-white rounded-2xl"></div>
+                            <div class="absolute bottom-0 left-0 w-full p-4">
+                                <div class="text-white font-bold text-lg">Medium duty</div>
+                                <div class="text-slate-300 text-xs">F-250, Ram 2500</div>
                             </div>
                         </label>
-                        <!-- Freightliner -->
-                        <label class="cursor-pointer relative overflow-hidden rounded-2xl border border-navy-700 transition-all h-40 group">
+                        <label class="cursor-pointer relative overflow-hidden rounded-2xl border border-navy-700 h-36 block">
                             <input type="radio" name="fleet_type" value="Heavy Duty (Freightliner/Semi)" class="peer sr-only" required>
-                            <img src="brand_assets/semi.jpg" alt="Heavy Duty Semi Truck" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                            <div class="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/40 to-transparent peer-checked:bg-orange-500/20 transition-all"></div>
-                            <div class="absolute inset-0 border-2 border-transparent peer-checked:border-orange-500 rounded-2xl transition-all shadow-[inset_0_0_20px_rgba(242,101,34,0)] peer-checked:shadow-[inset_0_0_20px_rgba(242,101,34,0.3)]"></div>
-                            <div class="absolute bottom-0 left-0 w-full p-4 z-10">
-                                <div class="text-white font-bold text-lg mb-1 group-hover:text-orange-400 peer-checked:text-orange-400 transition-colors">Heavy Duty</div>
-                                <div class="text-slate-300 text-xs">Freightliner, Semis</div>
+                            <img src="brand_assets/semi.jpg" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+                            <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/75 to-navy-900/10"></div>
+                            <div class="absolute inset-0 border-2 border-transparent peer-checked:border-orange-500 peer-focus-visible:border-white rounded-2xl"></div>
+                            <div class="absolute bottom-0 left-0 w-full p-4">
+                                <div class="text-white font-bold text-lg">Heavy duty</div>
+                                <div class="text-slate-300 text-xs">Freightliner, semis</div>
                             </div>
                         </label>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">VIN <span class="text-slate-600 font-normal">(Optional)</span></label>
-                            <input type="text" name="vin" maxlength="17" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3.5 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all uppercase font-mono placeholder-slate-600 shadow-inner" placeholder="17-DIGIT VIN">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">License Plate <span class="text-slate-600 font-normal">(Optional)</span></label>
-                            <input type="text" name="license_plate" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3.5 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all uppercase placeholder-slate-600 shadow-inner" placeholder="ABC-1234">
-                        </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Year / Make / Model</label>
-                            <input type="text" name="vehicle_info" required class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3.5 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="2022 Ford F-150">
+                            <label class="pf-label-text" for="qf-vehicle">Year, make and model</label>
+                            <input id="qf-vehicle" type="text" name="vehicle_info" maxlength="150" class="pf-field" placeholder="2022 Ford Transit. For several vehicles, list them in the notes">
+                        </div>
+                        <div>
+                            <label class="pf-label-text" for="qf-vin">VIN <span class="text-slate-500">(optional)</span></label>
+                            <input id="qf-vin" type="text" name="vin" maxlength="17" class="pf-field uppercase font-mono" placeholder="17 characters">
+                        </div>
+                        <div>
+                            <label class="pf-label-text" for="qf-plate">License plate <span class="text-slate-500">(optional)</span></label>
+                            <input id="qf-plate" type="text" name="license_plate" maxlength="20" class="pf-field uppercase" placeholder="ABC-1234">
                         </div>
                     </div>
-                </div>
+                </fieldset>
 
-                <!-- Service Details -->
-                <div>
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-3">
-                        <span class="w-6 h-px bg-slate-600"></span> Damage Report
-                    </h3>
+                <fieldset>
+                    <legend class="font-bold text-lg mb-4">What it needs</legend>
                     <div class="space-y-5">
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Service Needed</label>
-                            <select name="service" required class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3.5 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all appearance-none cursor-pointer shadow-inner">
-                                <option value="glass">Auto Glass Replacement</option>
-                                <option value="pdr">Paintless Dent Repair (PDR)</option>
-                                <option value="wheel">Wheel & Rim Repair</option>
-                                <option value="telematics">Telematics & Cameras</option>
-                                <option value="batteries">Battery Replacement</option>
-                                <option value="keys">Keys & Key Fobs</option>
-                                <option value="other">Other / Not Sure</option>
+                            <label class="pf-label-text" for="qf-service">Service needed</label>
+                            <select id="qf-service" name="service" required class="pf-field appearance-none cursor-pointer">
+                                <option value="glass">Auto glass</option>
+                                <option value="keys">Keys and fobs</option>
+                                <option value="batteries">Battery replacement or program</option>
+                                <option value="pdr">Paintless dent repair</option>
+                                <option value="wheel">Wheel and rim repair</option>
+                                <option value="telematics">Telematics and cameras</option>
+                                <option value="other">Several services, or not sure</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-2 ml-1">Upload Damage Photos</label>
-                            <label for="images" class="border-2 border-dashed border-navy-600 bg-navy-900/40 hover:bg-navy-800 rounded-2xl p-8 text-center cursor-pointer hover:border-orange-500 transition-all block group">
-                                <div class="bg-navy-800 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-lg">
-                                    <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                </div>
-                                <span class="text-white font-bold block">Click to upload photos</span>
-                                <span class="block text-slate-500 text-sm mt-1">Up to 3 photos (JPG or PNG, 10 MB each) so we can quote accurately</span>
+                            <span class="pf-label-text">Damage photos <span class="text-slate-500">(optional)</span></span>
+                            <label for="images" class="border-2 border-dashed border-navy-600 bg-navy-800/40 hover:border-orange-500 rounded-2xl p-7 text-center cursor-pointer block" style="transition: border-color .15s ease">
+                                <svg class="w-7 h-7 text-orange-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                <span class="text-white font-bold block">Choose photos</span>
+                                <span class="block text-slate-400 text-sm mt-1">Up to 3 photos, 10 MB each. They help us quote accurately.</span>
                                 <input type="file" id="images" name="images" multiple accept="image/jpeg,image/png,image/webp,image/heic" class="hidden">
                             </label>
                             <div id="file-names" class="text-sm text-orange-400 mt-2 font-medium px-2"></div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Additional Notes</label>
-                            <textarea name="message" rows="3" class="w-full bg-navy-900/80 border border-navy-700 rounded-xl px-4 py-3.5 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder-slate-600 shadow-inner" placeholder="Briefly describe the damage..."></textarea>
+                            <label class="pf-label-text" for="qf-notes">Notes</label>
+                            <textarea id="qf-notes" name="message" rows="4" maxlength="2500" class="pf-field" placeholder="Describe the damage, list other vehicles, or tell us where they're parked"></textarea>
                         </div>
                     </div>
-                </div>
+                </fieldset>
 
-                <div class="pt-6">
-                    <p class="text-xs text-slate-500 mb-4 text-center">By providing your phone number, you agree to receive text messages from ProFinish regarding your service requests. Message frequency varies. Message and data rates may apply. Reply STOP to opt out at any time.</p>
-                    <button type="submit" id="submit-btn" class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(242,101,34,0.3)] hover:shadow-[0_0_30px_rgba(242,101,34,0.5)] transition-all active:scale-[0.98] flex items-center justify-center gap-3">
-                        <span>Submit for Estimate</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                <div>
+                    <button type="submit" id="submit-btn" class="pf-btn w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-lg shadow-[0_10px_30px_-8px_rgba(242,101,34,0.55)]">
+                        <span>Request my quote</span>
                     </button>
-                    <p id="form-message" class="text-center mt-4 text-sm font-bold"></p>
+                    <p id="form-message" class="text-center mt-4 text-sm font-bold" role="status"></p>
+                    <p class="text-xs text-slate-500 mt-4 text-center leading-relaxed">By providing your phone number, you agree to receive text messages from ProFinish regarding your service requests. Message frequency varies. Message and data rates may apply. Reply STOP to opt out at any time.</p>
                 </div>
             </form>
-        </div>
-        </div>
-
-        <!-- Right Side: Cinematic Video Showcase -->
-        <div class="block order-1 lg:order-2 relative h-[300px] lg:sticky lg:top-32 lg:h-[calc(100vh-10rem)] w-full rounded-[2.5rem] overflow-hidden border border-navy-600 glass-panel group mb-8 lg:mb-0">
-            <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-700">
-                <source src="brand_assets/Flow_delpmaspu_.mp4" type="video/mp4">
-            </video>
-            
-            <!-- Gradient Overlays for Readability -->
-            <div class="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/20 to-transparent"></div>
-            <div class="absolute inset-0 bg-gradient-to-r from-navy-900/60 to-transparent"></div>
-            
-            <!-- Content overlaid on Video -->
-            <div class="absolute bottom-0 left-0 w-full p-12">
-                <div class="bg-orange-500/20 border border-orange-500/30 text-orange-400 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase inline-block mb-6 backdrop-blur-md">
-                    Elite Craftsmanship
-                </div>
-                <h2 class="text-4xl font-black text-white mb-4 leading-tight">
-                    Precision meets <br>performance.
-                </h2>
-                <p class="text-slate-300 text-lg max-w-md leading-relaxed">
-                    Every vehicle that enters our shop is treated with absolute care. Let us restore your factory finish so you can drive with confidence.
-                </p>
             </div>
         </div>
     </section>
+
 
     <!-- PF:FOOTER:START -->
     <footer class="relative mt-20 border-t border-navy-700/50 bg-navy-900 overflow-hidden">
@@ -617,8 +646,7 @@
 
                 <div class="lg:col-span-2">
                     <a href="/" class="flex items-center gap-3 mb-5">
-                        <img src="brand_assets/ProFinishEliteLogo_New.png" alt="" width="40" height="40" class="h-10 w-auto rounded-md">
-                        <span class="font-bold text-lg text-white tracking-tight">ProFinish Elite Glass &amp; Keys<span class="text-orange-500">.</span></span>
+                        <img src="brand_assets/profinish-logo-light.svg" alt="ProFinish Elite Glass &amp; Keys" width="180" height="48" class="h-12 w-auto">
                     </a>
                     <p class="text-slate-400 text-sm leading-relaxed mb-6 max-w-xs">
                         Mobile auto glass, dent, wheel, key and fleet tech service for commercial fleets. Serving San Antonio, Austin, Eagle Pass, California and Washington.
@@ -679,6 +707,7 @@
                         <li><a href="privacy.html" class="text-slate-400 hover:text-white">Privacy policy</a></li>
                         <li><a href="terms.html" class="text-slate-400 hover:text-white">Terms of service</a></li>
                         <li><a href="https://profinish-admin.vercel.app/auth/login" target="_blank" rel="noopener" class="text-slate-400 hover:text-orange-400">Partner login</a></li>
+                        <li><a href="mailto:profi@goprofinish.com?subject=Join%20the%20ProFinish%20partner%20network" class="text-slate-400 hover:text-orange-400">Join the partner network</a></li>
                     </ul>
                 </div>
             </div>

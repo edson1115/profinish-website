@@ -86,6 +86,13 @@
             }
 
             var fleetType = fd.get('fleet_type');
+            // Company and fleet details ride along at the top of the notes, so the
+            // lead email shows them without any change to the leads table.
+            var fleetLines = [];
+            if (fd.get('company')) fleetLines.push('Company: ' + String(fd.get('company')).slice(0, 120));
+            if (fd.get('fleet_size')) fleetLines.push('Fleet size: ' + fd.get('fleet_size'));
+            if (fd.get('units_needing_service')) fleetLines.push('Vehicles needing service: ' + fd.get('units_needing_service'));
+            var fleetNote = fleetLines.length ? fleetLines.join(' | ') + '\n\n' : '';
             var res = await fetch('/api/leads', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -100,7 +107,7 @@
                         vin: fd.get('vin'),
                         license_plate: fd.get('license_plate'),
                         vehicle_info: (fleetType ? '[' + fleetType + '] ' : '') + (fd.get('vehicle_info') || ''),
-                        message: (fd.get('message') || '') + imageNote,
+                        message: fleetNote + (fd.get('message') || '') + imageNote,
                         image_urls: imageUrls
                     }
                 })
